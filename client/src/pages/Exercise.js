@@ -555,3 +555,5 @@ const Exercise = () => {
     </ExerciseContainer>
   );
 };
+
+export default Exercise;
