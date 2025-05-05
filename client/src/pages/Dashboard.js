@@ -3,7 +3,9 @@ import { useQuery } from '@apollo/client';
 import { GET_MOOD_ENTRIES, GET_RECOMMENDED_EXERCISES } from '../graphql/queries';
 import MoodChart from '../components/mood/MoodChart';
 import MoodTracker from '../components/mood/MoodTracker';
-import ExerciseList from '../components/exercises/ExerciseList';
+import MoodHistory from '../components/mood/MoodHistory';
+import RecommendedExercises from '../components/exercises/RecommendedExercises';
+import RecommendedResources from '../components/resources/RecommendedResources';
 import styled from 'styled-components';
 
 const DashboardContainer = styled.div`
@@ -48,14 +50,38 @@ const Card = styled.div`
   padding: 1.5rem;
 `;
 
+const MoodSummaryCard = styled(Card)`
+  @media (min-width: 768px) {
+    grid-column: 1 / -1;
+  }
+`;
+
+const DailyTip = styled.div`
+  background-color: #ebf8ff;
+  border-left: 4px solid #4299e1;
+  padding: 1rem;
+  margin-top: 1rem;
+  border-radius: 4px;
+`;
+
 const Dashboard = () => {
   const { loading: moodLoading, error: moodError, data: moodData } = useQuery(GET_MOOD_ENTRIES, {
     variables: { limit: 7 } // Ultimele 7 înregistrări
   });
   
-  const { loading: exercisesLoading, error: exercisesError, data: exercisesData } = useQuery(GET_RECOMMENDED_EXERCISES, {
-    variables: { limit: 3 } // Top 3 exerciții recomandate
-  });
+  // Array de sfaturi zilnice
+  const dailyTips = [
+    "Acordă-ți 5 minute pentru a respira adânc și a te concentra pe momentul prezent.",
+    "Încearcă să faci o plimbare scurtă în aer liber astăzi pentru a-ți stimula starea de spirit.",
+    "Amintește-ți să bei suficientă apă pe parcursul zilei.",
+    "Fă o pauză mică de la ecrane la fiecare oră de utilizare.",
+    "Conectează-te cu o persoană dragă astăzi, fie și doar pentru un mesaj scurt.",
+    "Notează 3 lucruri pentru care ești recunoscător astăzi.",
+    "Încearcă să faci un gest de bunătate pentru cineva astăzi."
+  ];
+  
+  // Alege un sfat aleator
+  const randomTip = dailyTips[Math.floor(Math.random() * dailyTips.length)];
 
   return (
     <DashboardContainer>
@@ -66,7 +92,7 @@ const Dashboard = () => {
       
       <DashboardGrid>
         <LeftColumn>
-          <Card>
+          <MoodSummaryCard>
             <SectionHeading>Dispoziția ta</SectionHeading>
             {moodLoading ? (
               <p>Se încarcă datele...</p>
@@ -77,31 +103,33 @@ const Dashboard = () => {
             ) : (
               <p>Nu există înregistrări de dispoziție. Adaugă prima ta înregistrare folosind formularul de mai jos.</p>
             )}
-          </Card>
+          </MoodSummaryCard>
           
           <Card>
             <SectionHeading>Adaugă dispoziția curentă</SectionHeading>
             <MoodTracker />
           </Card>
+          
+          <Card>
+            <SectionHeading>Istoricul dispoziției</SectionHeading>
+            <MoodHistory />
+          </Card>
         </LeftColumn>
         
         <RightColumn>
           <Card>
-            <SectionHeading>Exerciții recomandate</SectionHeading>
-            {exercisesLoading ? (
-              <p>Se încarcă exercițiile...</p>
-            ) : exercisesError ? (
-              <p>Eroare la încărcarea exercițiilor: {exercisesError.message}</p>
-            ) : exercisesData && exercisesData.getRecommendedExercises.length > 0 ? (
-              <ExerciseList exercises={exercisesData.getRecommendedExercises} />
-            ) : (
-              <p>Nu există exerciții recomandate disponibile.</p>
-            )}
+            <RecommendedExercises limit={3} />
+          </Card>
+          
+          <Card>
+            <RecommendedResources limit={3} />
           </Card>
           
           <Card>
             <SectionHeading>Sfatul zilei</SectionHeading>
-            <p>Acordă-ți câteva minute în fiecare zi pentru a respira adânc și a te conecta cu tine însuți.</p>
+            <DailyTip>
+              {randomTip}
+            </DailyTip>
           </Card>
         </RightColumn>
       </DashboardGrid>

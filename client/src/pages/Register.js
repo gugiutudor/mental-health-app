@@ -5,70 +5,15 @@ import { useFormik } from 'formik';
 import * as Yup from 'yup';
 import { REGISTER_USER } from '../graphql/mutations';
 import { useAuth } from '../context/AuthContext';
-import styled from 'styled-components';
-
-const RegisterContainer = styled.div`
-  max-width: 400px;
-  margin: 2rem auto;
-  padding: 2rem;
-  border-radius: 10px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  background-color: white;
-`;
-
-const Form = styled.form`
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-`;
-
-const FormGroup = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-`;
-
-const Label = styled.label`
-  font-weight: 600;
-`;
-
-const Input = styled.input`
-  padding: 0.75rem;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  font-size: 1rem;
-`;
-
-const ErrorText = styled.div`
-  color: #e53e3e;
-  font-size: 0.875rem;
-`;
-
-const SubmitButton = styled.button`
-  background-color: #4c51bf;
-  color: white;
-  padding: 0.75rem;
-  border: none;
-  border-radius: 4px;
-  font-size: 1rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: background-color 0.2s;
-
-  &:hover {
-    background-color: #434190;
-  }
-
-  &:disabled {
-    background-color: #a0aec0;
-    cursor: not-allowed;
-  }
-`;
-
-const LoginLink = styled.div`
-  margin-top: 1rem;
-  text-align: center;
-`;
+import { 
+  FormContainer, 
+  Form, 
+  TextField, 
+  PasswordField, 
+  SubmitButton, 
+  ErrorMessage,
+  LinkText
+} from '../components/forms/FormComponents';
 
 const Register = () => {
   const navigate = useNavigate();
@@ -118,87 +63,69 @@ const Register = () => {
   });
 
   return (
-    <RegisterContainer>
+    <FormContainer>
       <h2 style={{ textAlign: 'center', marginBottom: '1.5rem' }}>Înregistrare</h2>
       
       {serverError && (
-        <ErrorText style={{ marginBottom: '1rem' }}>{serverError}</ErrorText>
+        <ErrorMessage>{serverError}</ErrorMessage>
       )}
       
       <Form onSubmit={formik.handleSubmit}>
-        <FormGroup>
-          <Label htmlFor="name">Nume</Label>
-          <Input
-            id="name"
-            name="name"
-            type="text"
-            onChange={formik.handleChange}
-            onBlur={formik.handleBlur}
-            value={formik.values.name}
-            placeholder="Introdu numele tău"
-          />
-          {formik.touched.name && formik.errors.name ? (
-            <ErrorText>{formik.errors.name}</ErrorText>
-          ) : null}
-        </FormGroup>
+        <TextField
+          id="name"
+          label="Nume"
+          type="text"
+          onChange={formik.handleChange}
+          onBlur={formik.handleBlur}
+          value={formik.values.name}
+          error={formik.errors.name}
+          touched={formik.touched.name}
+          placeholder="Introdu numele tău"
+        />
 
-        <FormGroup>
-          <Label htmlFor="email">Email</Label>
-          <Input
-            id="email"
-            name="email"
-            type="email"
-            onChange={formik.handleChange}
-            onBlur={formik.handleBlur}
-            value={formik.values.email}
-            placeholder="Introdu adresa de email"
-          />
-          {formik.touched.email && formik.errors.email ? (
-            <ErrorText>{formik.errors.email}</ErrorText>
-          ) : null}
-        </FormGroup>
+        <TextField
+          id="email"
+          label="Email"
+          type="email"
+          onChange={formik.handleChange}
+          onBlur={formik.handleBlur}
+          value={formik.values.email}
+          error={formik.errors.email}
+          touched={formik.touched.email}
+          placeholder="Introdu adresa de email"
+        />
 
-        <FormGroup>
-          <Label htmlFor="password">Parolă</Label>
-          <Input
-            id="password"
-            name="password"
-            type="password"
-            onChange={formik.handleChange}
-            onBlur={formik.handleBlur}
-            value={formik.values.password}
-            placeholder="Introdu parola"
-          />
-          {formik.touched.password && formik.errors.password ? (
-            <ErrorText>{formik.errors.password}</ErrorText>
-          ) : null}
-        </FormGroup>
+        <PasswordField
+          id="password"
+          label="Parolă"
+          onChange={formik.handleChange}
+          onBlur={formik.handleBlur}
+          value={formik.values.password}
+          error={formik.errors.password}
+          touched={formik.touched.password}
+          placeholder="Introdu parola"
+        />
 
-        <FormGroup>
-          <Label htmlFor="confirmPassword">Confirmă parola</Label>
-          <Input
-            id="confirmPassword"
-            name="confirmPassword"
-            type="password"
-            onChange={formik.handleChange}
-            onBlur={formik.handleBlur}
-            value={formik.values.confirmPassword}
-            placeholder="Confirmă parola"
-          />
-          {formik.touched.confirmPassword && formik.errors.confirmPassword ? (
-            <ErrorText>{formik.errors.confirmPassword}</ErrorText>
-          ) : null}
-        </FormGroup>
+        <PasswordField
+          id="confirmPassword"
+          label="Confirmă parola"
+          onChange={formik.handleChange}
+          onBlur={formik.handleBlur}
+          value={formik.values.confirmPassword}
+          error={formik.errors.confirmPassword}
+          touched={formik.touched.confirmPassword}
+          placeholder="Confirmă parola"
+        />
 
-        <SubmitButton type="submit" disabled={loading}>
-          {loading ? 'Se procesează...' : 'Înregistrare'}
+        <SubmitButton loading={loading}>
+          Înregistrare
         </SubmitButton>
       </Form>
 
-      <LoginLink>
+      <LinkText>
         Ai deja cont? <Link to="/login">Autentifică-te</Link>
-      </LoginLink>
-    </RegisterContainer>
+      </LinkText>
+    </FormContainer>
   );
 };
 
