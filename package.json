@@ -4,8 +4,8 @@
   "description": "Aplicație de monitorizare a sănătății mentale",
   "main": "src/index.js",
   "scripts": {
-    "start": "node src/index.js",
-    "dev": "nodemon src/index.js",
+    "start": "cd server && node src/index.js",
+    "dev": "cd server && nodemon src/index.js",
     "test": "jest --config=jest.config.js",
     "test:watch": "jest --config=jest.config.js --watch",
     "test:client": "cd client && npm test",
