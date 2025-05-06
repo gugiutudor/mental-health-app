@@ -30,7 +30,6 @@ services:
     volumes:
       - ./server:/app
       - /app/node_modules
-    command: npm run test:coverage
 
   client-test:
     build:
@@ -42,7 +41,6 @@ services:
     volumes:
       - ./client:/app
       - /app/node_modules
-    command: npm run test:coverage
 
   integration-test:
     build:
@@ -59,4 +57,3 @@ services:
     volumes:
       - .:/app
       - /app/node_modules
-    command: npm run test:integration
