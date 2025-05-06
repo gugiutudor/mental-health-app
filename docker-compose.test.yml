@@ -16,8 +16,8 @@ services:
 
   server-test:
     build:
-      context: ./server
-      dockerfile: Dockerfile.test
+      context: .
+      dockerfile: server/Dockerfile.test
     container_name: server-test
     depends_on:
       - mongodb-test
@@ -28,8 +28,10 @@ services:
       - JWT_SECRET=test-secret-key
       - JWT_EXPIRES_IN=1h
     volumes:
-      - ./server:/app
+      - ./:/app
       - /app/node_modules
+    # Modificăm comanda pentru a specifica exact calea
+    command: ["/bin/sh", "-c", "cd /app && npx jest --config=/app/jest.config.js"]
 
   client-test:
     build:
@@ -38,9 +40,13 @@ services:
     container_name: client-test
     environment:
       - CI=true
+      - NODE_ENV=test
+      - JSDOM_HTML_VER=5
     volumes:
       - ./client:/app
       - /app/node_modules
+    # Instalăm dependența lipsă și apoi rulăm testele
+    command: ["/bin/sh", "-c", "npm install --save-dev jest-environment-jsdom@29.7.0 && npm test"]
 
   integration-test:
     build:
@@ -55,5 +61,7 @@ services:
       - JWT_SECRET=test-secret-key
       - JWT_EXPIRES_IN=1h
     volumes:
-      - .:/app
+      - ./:/app
       - /app/node_modules
+    # Modificăm comanda pentru a specifica exact calea
+    command: ["/bin/sh", "-c", "cd /app && npx jest --config=/app/jest.config.js --testPathPattern=src/tests/integration"]

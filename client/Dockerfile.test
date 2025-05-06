@@ -2,17 +2,15 @@ FROM node:18-alpine
 
 WORKDIR /app
 
-# Copy package files
+# Copiază package.json
 COPY package*.json ./
 
-# Install dependencies
+# Instalează dependențele inclusiv jest
 RUN npm install
+RUN npm install -g jest
 
-# Copy the rest of the client code
+# Copiază restul codului
 COPY . .
 
-# Set CI environment variable to true to run tests without a browser
-ENV CI=true
-
-# Command to run tests (will be overridden by docker-compose)
+# Comandă de testare
 CMD ["npm", "test"]

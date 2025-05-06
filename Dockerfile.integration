@@ -2,17 +2,18 @@ FROM node:18-alpine
 
 WORKDIR /app
 
-# Copy package files
+# Copiază package.json
 COPY package*.json ./
 
-# Install dependencies
+# Instalează dependențele
 RUN npm install
 
-# Copy the rest of the application code
-COPY . .
-
-# Install test-specific dependencies
+# Instalează dependențe pentru testele de integrare
 RUN npm install -D jest mongodb-memory-server supertest
 
-# Command to run integration tests (will be overridden by docker-compose)
+# Copiază restul codului
+COPY . .
+
+# Comandă pentru a rula testele de integrare
+# Specifică calea exactă către jest.config.js
 CMD ["npm", "run", "test:integration"]
