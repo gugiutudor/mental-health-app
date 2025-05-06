@@ -1,0 +1,34 @@
+FROM node:18-alpine
+
+WORKDIR /app
+
+# Install necessary packages for Selenium tests
+RUN apk add --no-cache \
+    chromium \
+    chromium-chromedriver
+
+# Set environment variables for Chrome
+ENV CHROME_BIN=/usr/bin/chromium-browser \
+    CHROME_PATH=/usr/lib/chromium/ \
+    CHROMEDRIVER_PATH=/usr/bin/chromedriver
+
+# Copy package files
+COPY package*.json ./
+
+# Install dependencies
+RUN npm install
+
+# Install test dependencies
+RUN npm install -D \
+    mocha \
+    chai \
+    selenium-webdriver
+
+# Copy test files
+COPY tests/e2e ./tests/e2e
+
+# Create directory for test results
+RUN mkdir -p test-results
+
+# Default command to run E2E tests
+CMD ["npm", "run", "test:e2e"]

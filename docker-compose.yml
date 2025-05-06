@@ -1,0 +1,55 @@
+version: '3.8'
+
+services:
+  mongodb:
+    image: mongo:latest
+    container_name: mongodb
+    restart: always
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_data:/data/db
+      - ./mongodb-init:/docker-entrypoint-initdb.d
+    environment:
+      - MONGO_INITDB_DATABASE=mental-health-app
+      - MONGO_INITDB_ROOT_USERNAME=admin
+      - MONGO_INITDB_ROOT_PASSWORD=password
+
+  server:
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+    container_name: server
+    restart: always
+    ports:
+      - "4000:4000"
+    depends_on:
+      - mongodb
+    environment:
+      - PORT=4000
+      - NODE_ENV=development
+      - MONGODB_URI=mongodb://admin:password@mongodb:27017/mental-health-app?authSource=admin
+      - JWT_SECRET=432f9bed2a9e77616e3be77072c60929b92c123fe50daf87e1de90818e58edfd
+      - JWT_EXPIRES_IN=7d
+    volumes:
+      - ./server:/app
+      - /app/node_modules
+
+  client:
+    build:
+      context: ./client
+      dockerfile: Dockerfile
+    container_name: client
+    restart: always
+    ports:
+      - "3000:3000"
+    depends_on:
+      - server
+    environment:
+      - REACT_APP_API_URL=http://localhost:4000/graphql
+    volumes:
+      - ./client:/app
+      - /app/node_modules
+
+volumes:
+  mongodb_data:

@@ -1,0 +1,18 @@
+FROM node:18-alpine
+
+WORKDIR /app
+
+# Copy package files
+COPY package*.json ./
+
+# Install dependencies
+RUN npm install
+
+# Copy the rest of the client code
+COPY . .
+
+# Set CI environment variable to true to run tests without a browser
+ENV CI=true
+
+# Command to run tests (will be overridden by docker-compose)
+CMD ["npm", "test"]

@@ -14,7 +14,14 @@
     "test:e2e": "mocha tests/e2e/userJourney.test.js",
     "test:coverage": "jest --config=jest.config.js --coverage",
     "test:client:coverage": "cd client && npm run test:coverage",
-    "setup:test": "npm install && cd client && npm install"
+    "setup:test": "npm install && cd client && npm install",
+    "docker:build": "docker-compose build",
+    "docker:up": "docker-compose up -d",
+    "docker:down": "docker-compose down",
+    "docker:test": "./run-tests-docker.sh",
+    "docker:test:e2e": "./run-e2e-tests-docker.sh",
+    "docker:test:all": "./run-all-docker-tests.sh",
+    "docker:coverage": "./generate-coverage-report.sh"
   },
   "keywords": [
     "sănătate mentală",

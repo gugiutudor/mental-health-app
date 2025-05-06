@@ -1,0 +1,62 @@
+version: '3.8'
+
+services:
+  mongodb-test:
+    image: mongo:latest
+    container_name: mongodb-test
+    restart: always
+    ports:
+      - "27018:27017"
+    volumes:
+      - ./mongodb-init:/docker-entrypoint-initdb.d
+    environment:
+      - MONGO_INITDB_DATABASE=mental-health-app-test
+      - MONGO_INITDB_ROOT_USERNAME=admin
+      - MONGO_INITDB_ROOT_PASSWORD=password
+
+  server-test:
+    build:
+      context: ./server
+      dockerfile: Dockerfile.test
+    container_name: server-test
+    depends_on:
+      - mongodb-test
+    environment:
+      - PORT=4001
+      - NODE_ENV=test
+      - MONGODB_URI=mongodb://admin:password@mongodb-test:27017/mental-health-app-test?authSource=admin
+      - JWT_SECRET=test-secret-key
+      - JWT_EXPIRES_IN=1h
+    volumes:
+      - ./server:/app
+      - /app/node_modules
+    command: npm run test:coverage
+
+  client-test:
+    build:
+      context: ./client
+      dockerfile: Dockerfile.test
+    container_name: client-test
+    environment:
+      - CI=true
+    volumes:
+      - ./client:/app
+      - /app/node_modules
+    command: npm run test:coverage
+
+  integration-test:
+    build:
+      context: .
+      dockerfile: Dockerfile.integration
+    container_name: integration-test
+    depends_on:
+      - mongodb-test
+    environment:
+      - NODE_ENV=test
+      - MONGODB_URI=mongodb://admin:password@mongodb-test:27017/mental-health-app-test?authSource=admin
+      - JWT_SECRET=test-secret-key
+      - JWT_EXPIRES_IN=1h
+    volumes:
+      - .:/app
+      - /app/node_modules
+    command: npm run test:integration

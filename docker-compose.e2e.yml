@@ -1,0 +1,84 @@
+version: '3.8'
+
+services:
+  mongodb-e2e:
+    image: mongo:latest
+    container_name: mongodb-e2e
+    restart: always
+    ports:
+      - "27019:27017"
+    volumes:
+      - ./mongodb-init:/docker-entrypoint-initdb.d
+    environment:
+      - MONGO_INITDB_DATABASE=mental-health-app-e2e
+      - MONGO_INITDB_ROOT_USERNAME=admin
+      - MONGO_INITDB_ROOT_PASSWORD=password
+
+  server-e2e:
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+    container_name: server-e2e
+    restart: always
+    ports:
+      - "4002:4000"
+    depends_on:
+      - mongodb-e2e
+    environment:
+      - PORT=4000
+      - NODE_ENV=test
+      - MONGODB_URI=mongodb://admin:password@mongodb-e2e:27017/mental-health-app-e2e?authSource=admin
+      - JWT_SECRET=e2e-test-secret-key
+      - JWT_EXPIRES_IN=1h
+    volumes:
+      - ./server:/app
+      - /app/node_modules
+
+  client-e2e:
+    build:
+      context: ./client
+      dockerfile: Dockerfile
+    container_name: client-e2e
+    restart: always
+    ports:
+      - "3001:3000"
+    depends_on:
+      - server-e2e
+    environment:
+      - REACT_APP_API_URL=http://server-e2e:4000/graphql
+    volumes:
+      - ./client:/app
+      - /app/node_modules
+
+  selenium-hub:
+    image: selenium/hub:latest
+    container_name: selenium-hub
+    ports:
+      - "4444:4444"
+
+  chrome:
+    image: selenium/node-chrome:latest
+    depends_on:
+      - selenium-hub
+    environment:
+      - SE_EVENT_BUS_HOST=selenium-hub
+      - SE_EVENT_BUS_PUBLISH_PORT=4442
+      - SE_EVENT_BUS_SUBSCRIBE_PORT=4443
+
+  e2e-tests:
+    build:
+      context: .
+      dockerfile: Dockerfile.e2e
+    container_name: e2e-tests
+    depends_on:
+      - server-e2e
+      - client-e2e
+      - chrome
+    environment:
+      - SELENIUM_HUB=http://selenium-hub:4444/wd/hub
+      - SERVER_URL=http://server-e2e:4000
+      - CLIENT_URL=http://client-e2e:3000
+    volumes:
+      - ./tests/e2e:/app/tests/e2e
+      - ./test-results:/app/test-results
+    command: npm run test:e2e
