@@ -1,0 +1,15 @@
+﻿# Directoare node_modules
+node_modules/
+/node_modules/
+client/node_modules/
+/client/node_modules/
+
+# Fisiere de mediu
+.env
+.env.*
+
+# Cache-uri
+.cache/
+**/.cache/
+**/dist/
+**/build/
