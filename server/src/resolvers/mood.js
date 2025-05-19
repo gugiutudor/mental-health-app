@@ -1,3 +1,4 @@
+// Resolver mood.js actualizat pentru a fi compatibil cu testele
 const { AuthenticationError } = require('apollo-server-express');
 const { MoodEntry } = require('../models');
 
@@ -58,9 +59,15 @@ const moodResolvers = {
           if (endDate) query.date.$lte = new Date(endDate);
         }
         
-        const entries = await MoodEntry.find(query).sort({ date: 1 });
+        // Modificare pentru a fi compatibil cu testele - nu mai folosim sort() după find()
+        const entries = await MoodEntry.find(query);
         
-        if (entries.length === 0) {
+        // Sortăm manual dacă avem nevoie
+        const sortedEntries = entries.sort((a, b) => {
+          return new Date(a.date) - new Date(b.date);
+        });
+        
+        if (sortedEntries.length === 0) {
           return {
             averageMood: 0,
             moodTrend: [],
@@ -69,18 +76,18 @@ const moodResolvers = {
         }
         
         // Calculează media dispozițiilor
-        const totalMood = entries.reduce((sum, entry) => sum + entry.mood, 0);
-        const averageMood = totalMood / entries.length;
+        const totalMood = sortedEntries.reduce((sum, entry) => sum + entry.mood, 0);
+        const averageMood = totalMood / sortedEntries.length;
         
         // Creează tendința dispozițiilor (array de valori)
-        const moodTrend = entries.map(entry => entry.mood);
+        const moodTrend = sortedEntries.map(entry => entry.mood);
         
         // Calculează corelațiile factorilor (simplificat)
         const factorCorrelations = [];
         const factorTypes = ['sleep', 'stress', 'activity', 'social'];
         
         factorTypes.forEach(factor => {
-          const entriesWithFactor = entries.filter(entry => 
+          const entriesWithFactor = sortedEntries.filter(entry => 
             entry.factors && entry.factors[factor]
           );
           

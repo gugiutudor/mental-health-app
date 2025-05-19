@@ -16,7 +16,7 @@
     "test:server": "cd server && jest",
     "test:server:watch": "cd server && jest --watch",
     "test:server:coverage": "cd server && jest --coverage",
-    "test:server:unit": "cd server && jest --testPathPattern='/__tests__/(models|resolvers)/.*\\.test\\.js'",
+    "test:server:unit": "cd server && jest \"--testPathPattern=/__tests__/(models|resolvers)/.*\\.test\\.js\"",
     "test:server:integration": "cd server && jest --testPathPattern='/__tests__/integration/.*\\.test\\.js'",
     "test:server:middleware": "cd server && jest --testPathPattern='/__tests__/middleware/.*\\.test\\.js'",
     

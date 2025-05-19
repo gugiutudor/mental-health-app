@@ -1,3 +1,4 @@
+// Resolver exercise.js actualizat pentru a fi compatibil cu testele
 const { AuthenticationError, ForbiddenError } = require('apollo-server-express');
 const { Exercise, MoodEntry } = require('../models');
 
@@ -47,8 +48,9 @@ const exerciseResolvers = {
         
         if (recentMoods.length === 0) {
           // Dacă nu există înregistrări, returnează exerciții generale
-          const generalExercises = await Exercise.find()
-            .limit(limit);
+          // Modificare pentru a fi compatibil cu testele - nu mai folosim limit() după find()
+          const allExercises = await Exercise.find();
+          const generalExercises = allExercises.slice(0, limit);
             
           return generalExercises.map(exercise => ({
             exercise,
@@ -148,6 +150,10 @@ const exerciseResolvers = {
         
         return exercise;
       } catch (error) {
+        // Verificăm dacă eroarea este deja un ForbiddenError și o retransmitem
+        if (error instanceof ForbiddenError) {
+          throw error;
+        }
         throw new Error(`Eroare la actualizarea exercițiului: ${error.message}`);
       }
     },
@@ -168,6 +174,7 @@ const exerciseResolvers = {
         
         // Verifică dacă utilizatorul este creatorul exercițiului
         if (exercise.createdBy && exercise.createdBy.toString() !== req.user.id) {
+          // Schimbăm aici să aruncăm ForbiddenError direct
           throw new ForbiddenError('Nu ai permisiunea să ștergi acest exercițiu');
         }
         
@@ -176,6 +183,10 @@ const exerciseResolvers = {
         
         return true;
       } catch (error) {
+        // Verificăm dacă eroarea este deja un ForbiddenError și o retransmitem
+        if (error instanceof ForbiddenError) {
+          throw error;
+        }
         throw new Error(`Eroare la ștergerea exercițiului: ${error.message}`);
       }
     }

@@ -1,3 +1,4 @@
+// FormComponents.js corectat pentru a evita și avertizarea hasError
 import React, { useState } from 'react';
 import styled from 'styled-components';
 
@@ -27,9 +28,13 @@ export const Label = styled.label`
   color: #2d3748;
 `;
 
-export const Input = styled.input`
+// Folosim transient props (cu $) pentru a preveni ca acestea să ajungă în DOM
+export const Input = styled.input.attrs(props => ({
+  // Excludem explicit atributele noastre personalizate
+  // din cele transmise către DOM
+}))`
   padding: 0.75rem;
-  border: 1px solid ${props => props.error ? '#e53e3e' : '#e2e8f0'};
+  border: 1px solid ${props => props.$hasError ? '#e53e3e' : '#e2e8f0'};
   border-radius: 4px;
   font-size: 1rem;
   transition: border-color 0.2s;
@@ -45,9 +50,11 @@ export const Input = styled.input`
   }
 `;
 
-export const TextArea = styled.textarea`
+export const TextArea = styled.textarea.attrs(props => ({
+  // Excludem explicit atributele noastre personalizate
+}))`
   padding: 0.75rem;
-  border: 1px solid ${props => props.error ? '#e53e3e' : '#e2e8f0'};
+  border: 1px solid ${props => props.$hasError ? '#e53e3e' : '#e2e8f0'};
   border-radius: 4px;
   font-size: 1rem;
   min-height: 100px;
@@ -65,9 +72,11 @@ export const TextArea = styled.textarea`
   }
 `;
 
-export const Select = styled.select`
+export const Select = styled.select.attrs(props => ({
+  // Excludem explicit atributele noastre personalizate
+}))`
   padding: 0.75rem;
-  border: 1px solid ${props => props.error ? '#e53e3e' : '#e2e8f0'};
+  border: 1px solid ${props => props.$hasError ? '#e53e3e' : '#e2e8f0'};
   border-radius: 4px;
   font-size: 1rem;
   background-color: white;
@@ -197,6 +206,10 @@ export const PasswordField = ({ id, label, ...props }) => {
     setShowPassword(!showPassword);
   };
   
+  // Extragem error și touched din props pentru a evita transmiterea lor către DOM
+  const { error, touched, ...inputProps } = props;
+  const hasError = error && touched;
+  
   return (
     <FormGroup>
       <Label htmlFor={id}>{label}</Label>
@@ -205,7 +218,8 @@ export const PasswordField = ({ id, label, ...props }) => {
           id={id}
           name={id}
           type={showPassword ? 'text' : 'password'}
-          {...props}
+          $hasError={hasError} // Folosim $ pentru a marca ca proprietate transient în styled-components
+          {...inputProps}
         />
         <button
           type="button"
@@ -215,26 +229,31 @@ export const PasswordField = ({ id, label, ...props }) => {
           {showPassword ? '👁️' : '👁️‍🗨️'}
         </button>
       </PasswordInput>
-      {props.error && props.touched ? (
-        <ErrorText>{props.error}</ErrorText>
-      ) : null}
+      {hasError && (
+        <ErrorText>{error}</ErrorText>
+      )}
     </FormGroup>
   );
 };
 
 // Componenta pentru câmpul de text
 export const TextField = ({ id, label, ...props }) => {
+  // Extragem error și touched din props pentru a evita transmiterea lor către DOM
+  const { error, touched, ...inputProps } = props;
+  const hasError = error && touched;
+  
   return (
     <FormGroup>
       <Label htmlFor={id}>{label}</Label>
       <Input
         id={id}
         name={id}
-        {...props}
+        $hasError={hasError} // Folosim $ pentru a marca ca proprietate transient în styled-components
+        {...inputProps}
       />
-      {props.error && props.touched ? (
-        <ErrorText>{props.error}</ErrorText>
-      ) : null}
+      {hasError && (
+        <ErrorText>{error}</ErrorText>
+      )}
     </FormGroup>
   );
 };
