@@ -279,7 +279,8 @@ const MoodHistory = () => {
     variables: { 
       startDate: dateRange.startDate,
       endDate: dateRange.endDate
-    }
+    },
+    fetchPolicy: 'network-only'
   });
   
   // Obține eticheta factorului
@@ -320,12 +321,21 @@ const MoodHistory = () => {
   // Procesare date pentru a evita erori
   const processedEntries = !hasEntries ? [] : entriesData.getMoodEntries.map(entry => {
     // Asigură-te că toate proprietățile există și sunt în formatul corect
+    // Elimină __typename din factori dacă există
+    let cleanFactors = {};
+    if (entry.factors) {
+      cleanFactors = { ...entry.factors };
+      if ('__typename' in cleanFactors) {
+        delete cleanFactors.__typename;
+      }
+    }
+    
     return {
       id: entry.id || `entry-${Math.random()}`,
       date: entry.date || new Date().toISOString(),
       mood: typeof entry.mood === 'number' ? entry.mood : (parseInt(entry.mood) || 5),
       notes: entry.notes || '',
-      factors: entry.factors || {},
+      factors: cleanFactors,
       tags: Array.isArray(entry.tags) ? entry.tags : []
     };
   });
@@ -428,7 +438,7 @@ const MoodHistory = () => {
                   {entry.factors && (
                     <EntryFactors>
                       {Object.entries(entry.factors)
-                        .filter(([key, value]) => key && value !== null && value !== undefined)
+                        .filter(([key, value]) => key !== '__typename' && value !== null && value !== undefined)
                         .map(([factor, value]) => (
                           <EntryFactor key={factor}>
                             <FactorLabel>{getFactorLabel(factor)}:</FactorLabel>
