@@ -1,4 +1,4 @@
-// client/src/components/mood/MoodHistory.js - versiunea corectată
+// client/src/components/mood/MoodHistory.js - versiunea completă modificată
 import React, { useState, useEffect } from 'react';
 import { useQuery } from '@apollo/client';
 import { GET_MOOD_ENTRIES, GET_MOOD_STATISTICS } from '../../graphql/queries';
@@ -230,6 +230,26 @@ const NoDataMessage = styled.div`
   font-size: 0.9rem;
 `;
 
+// Funcție utilitară pentru a elimina proprietățile __typename din obiecte
+function stripTypenameFields(obj) {
+  if (obj === null || obj === undefined || typeof obj !== 'object') {
+    return obj;
+  }
+
+  if (Array.isArray(obj)) {
+    return obj.map(item => stripTypenameFields(item));
+  }
+
+  const newObj = {};
+  Object.entries(obj).forEach(([key, value]) => {
+    if (key !== '__typename' && key !== '_typename' && !key.includes('typename')) {
+      newObj[key] = typeof value === 'object' ? stripTypenameFields(value) : value;
+    }
+  });
+
+  return newObj;
+}
+
 // Funcție îmbunătățită pentru formatarea datei
 function formatDate(dateString) {
   if (!dateString) return 'Data necunoscută';
@@ -339,23 +359,25 @@ const MoodHistory = () => {
   const filteredEntries = React.useMemo(() => {
     if (!entriesData || !entriesData.getMoodEntries) return [];
 
-    return entriesData.getMoodEntries.filter(entry => {
-      if (!entry || !entry.date) return false;
-      
-      // Convertește data înregistrării la un obiect Date
-      const entryDate = new Date(entry.date);
-      if (!isValid(entryDate)) return false;
-      
-      // Convertește limitele intervalului la obiecte Date
-      const startDateObj = new Date(dateRange.startDate);
-      const endDateObj = new Date(dateRange.endDate);
-      
-      // Ajustează data de sfârșit pentru a include întreaga zi
-      endDateObj.setHours(23, 59, 59, 999);
-      
-      // Verifică dacă data înregistrării este în interval
-      return entryDate >= startDateObj && entryDate <= endDateObj;
-    });
+    return entriesData.getMoodEntries
+      .filter(entry => {
+        if (!entry || !entry.date) return false;
+        
+        // Convertește data înregistrării la un obiect Date
+        const entryDate = new Date(entry.date);
+        if (!isValid(entryDate)) return false;
+        
+        // Convertește limitele intervalului la obiecte Date
+        const startDateObj = new Date(dateRange.startDate);
+        const endDateObj = new Date(dateRange.endDate);
+        
+        // Ajustează data de sfârșit pentru a include întreaga zi
+        endDateObj.setHours(23, 59, 59, 999);
+        
+        // Verifică dacă data înregistrării este în interval
+        return entryDate >= startDateObj && entryDate <= endDateObj;
+      })
+      .map(entry => stripTypenameFields(entry)); // Eliminăm toate câmpurile __typename
   }, [entriesData, dateRange.startDate, dateRange.endDate]);
 
   return (
@@ -452,7 +474,10 @@ const MoodHistory = () => {
                   {entry.factors && (
                     <EntryFactors>
                       {Object.entries(entry.factors)
-                        .filter(([key, value]) => key && value !== null && value !== undefined)
+                        .filter(([key, value]) => 
+                          key && value !== null && value !== undefined &&
+                          key !== '_typename' && key !== '__typename'
+                        )
                         .map(([factor, value]) => (
                           <EntryFactor key={factor}>
                             <FactorLabel>{getFactorLabel(factor)}:</FactorLabel>
@@ -519,15 +544,20 @@ const MoodHistory = () => {
                 <CorrelationContainer>
                   <h4>Corelații între factori și dispoziție</h4>
                   
-                  {statsData.getMoodStatistics.factorCorrelations.map(correlation => (
-                    <CorrelationItem key={correlation.factor}>
-                      <CorrelationFactor>{getFactorLabel(correlation.factor)}</CorrelationFactor>
-                      <CorrelationBar value={correlation.correlation || 0} />
-                      <CorrelationValue value={correlation.correlation || 0}>
-                        {(correlation.correlation || 0).toFixed(2)}
-                      </CorrelationValue>
-                    </CorrelationItem>
-                  ))}
+                  {statsData.getMoodStatistics.factorCorrelations
+                    .filter(correlation => correlation && correlation.factor && 
+                            correlation.factor !== '__typename' && correlation.factor !== '_typename')
+                    .map(correlation => {
+                      return (
+                        <CorrelationItem key={correlation.factor}>
+                          <CorrelationFactor>{getFactorLabel(correlation.factor)}</CorrelationFactor>
+                          <CorrelationBar value={correlation.correlation || 0} />
+                          <CorrelationValue value={correlation.correlation || 0}>
+                            {(correlation.correlation || 0).toFixed(2)}
+                          </CorrelationValue>
+                        </CorrelationItem>
+                      );
+                    })}
                   
                   <p style={{ fontSize: '0.875rem', marginTop: '1rem', color: '#718096' }}>
                     * Valorile pozitive indică o corelație pozitivă (factorul îmbunătățește dispoziția),
