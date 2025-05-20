@@ -220,6 +220,47 @@ const DateInput = styled.input`
   font-size: 0.875rem;
 `;
 
+const NoDataMessage = styled.div`
+  text-align: center;
+  padding: 2rem;
+  color: #718096;
+  background-color: #f7fafc;
+  border-radius: 8px;
+`;
+
+// Funcție îmbunătățită pentru formatarea datei
+function formatDate(dateString) {
+  if (!dateString) return 'Data necunoscută';
+  
+  try {
+    // Încearcă să formateze dacă este deja un obiect Date
+    if (dateString instanceof Date) {
+      if (isValid(dateString)) {
+        return format(dateString, 'EEEE, d MMMM yyyy', { locale: ro });
+      }
+      return 'Data necunoscută';
+    }
+    
+    // Încearcă cu parseISO pentru string-uri ISO 8601
+    const parsedDate = parseISO(dateString);
+    if (isValid(parsedDate)) {
+      return format(parsedDate, 'EEEE, d MMMM yyyy', { locale: ro });
+    }
+    
+    // Încearcă cu constructorul Date pentru alte formate
+    const date = new Date(dateString);
+    if (isValid(date) && !isNaN(date.getTime())) {
+      return format(date, 'EEEE, d MMMM yyyy', { locale: ro });
+    }
+    
+    // Dacă toate metodele eșuează, returnează un mesaj
+    return dateString.toString().substring(0, 10);
+  } catch (error) {
+    console.error('Eroare la formatarea datei:', error);
+    return 'Data necunoscută';
+  }
+}
+
 const MoodHistory = () => {
   const [activeTab, setActiveTab] = useState('chart');
   const [dateRange, setDateRange] = useState({
@@ -229,7 +270,8 @@ const MoodHistory = () => {
   
   // Obține înregistrările de dispoziție
   const { loading: entriesLoading, error: entriesError, data: entriesData } = useQuery(GET_MOOD_ENTRIES, {
-    variables: { limit: 30 }
+    variables: { limit: 30 },
+    fetchPolicy: 'network-only' // Forțează refresh-ul datelor
   });
   
   // Obține statisticile de dispoziție
@@ -239,27 +281,6 @@ const MoodHistory = () => {
       endDate: dateRange.endDate
     }
   });
-  
-  // Formatează data cu validare
-  const formatDate = (dateString) => {
-    try {
-      if (!dateString) return 'Dată necunoscută';
-      
-      // Parseaza string-ul de data
-      const parsedDate = parseISO(dateString);
-      
-      // Verifică dacă data rezultată este validă
-      if (!isValid(parsedDate)) {
-        return 'Dată invalidă';
-      }
-      
-      // Formatează data validă
-      return format(parsedDate, 'EEEE, d MMMM yyyy', { locale: ro });
-    } catch (error) {
-      console.error('Eroare la formatarea datei:', error);
-      return 'Dată invalidă';
-    }
-  };
   
   // Obține eticheta factorului
   const getFactorLabel = (factor) => {
@@ -275,9 +296,11 @@ const MoodHistory = () => {
   
   // Obține emoji pentru nivelul de dispoziție
   const getMoodEmoji = (mood) => {
-    if (mood <= 3) return '😞';
-    if (mood <= 5) return '😐';
-    if (mood <= 7) return '🙂';
+    const moodValue = Number(mood);
+    if (isNaN(moodValue)) return '😐';
+    if (moodValue <= 3) return '😞';
+    if (moodValue <= 5) return '😐';
+    if (moodValue <= 7) return '🙂';
     return '😄';
   };
   
@@ -290,6 +313,22 @@ const MoodHistory = () => {
   const handleEndDateChange = (e) => {
     setDateRange({ ...dateRange, endDate: e.target.value });
   };
+
+  // Verifică și asigură-te că există datele necesare
+  const hasEntries = entriesData && entriesData.getMoodEntries && entriesData.getMoodEntries.length > 0;
+  
+  // Procesare date pentru a evita erori
+  const processedEntries = !hasEntries ? [] : entriesData.getMoodEntries.map(entry => {
+    // Asigură-te că toate proprietățile există și sunt în formatul corect
+    return {
+      id: entry.id || `entry-${Math.random()}`,
+      date: entry.date || new Date().toISOString(),
+      mood: typeof entry.mood === 'number' ? entry.mood : (parseInt(entry.mood) || 5),
+      notes: entry.notes || '',
+      factors: entry.factors || {},
+      tags: Array.isArray(entry.tags) ? entry.tags : []
+    };
+  });
 
   return (
     <MoodHistoryContainer>
@@ -347,10 +386,13 @@ const MoodHistory = () => {
             <ErrorContainer>
               <p>Eroare la încărcarea datelor: {entriesError.message}</p>
             </ErrorContainer>
-          ) : entriesData && entriesData.getMoodEntries && entriesData.getMoodEntries.length > 0 ? (
-            <MoodChart entries={entriesData.getMoodEntries} />
+          ) : processedEntries.length > 0 ? (
+            <MoodChart entries={processedEntries} />
           ) : (
-            <p>Nu există înregistrări de dispoziție în acest interval.</p>
+            <NoDataMessage>
+              <p>Nu există înregistrări de dispoziție în acest interval.</p>
+              <p>Adaugă prima înregistrare folosind formularul de monitorizare a dispoziției.</p>
+            </NoDataMessage>
           )}
         </Card>
       )}
@@ -367,9 +409,9 @@ const MoodHistory = () => {
             <ErrorContainer>
               <p>Eroare la încărcarea datelor: {entriesError.message}</p>
             </ErrorContainer>
-          ) : entriesData && entriesData.getMoodEntries && entriesData.getMoodEntries.length > 0 ? (
+          ) : processedEntries.length > 0 ? (
             <EntryList>
-              {entriesData.getMoodEntries.map(entry => (
+              {processedEntries.map(entry => (
                 <EntryCard key={entry.id}>
                   <EntryHeader>
                     <EntryDate>{formatDate(entry.date)}</EntryDate>
@@ -385,14 +427,14 @@ const MoodHistory = () => {
                   
                   {entry.factors && (
                     <EntryFactors>
-                      {Object.entries(entry.factors || {})
+                      {Object.entries(entry.factors)
                         .filter(([key, value]) => key && value !== null && value !== undefined)
                         .map(([factor, value]) => (
                           <EntryFactor key={factor}>
                             <FactorLabel>{getFactorLabel(factor)}:</FactorLabel>
                             <FactorValue>{value}/5</FactorValue>
                           </EntryFactor>
-                      ))}
+                        ))}
                     </EntryFactors>
                   )}
                   
@@ -407,7 +449,10 @@ const MoodHistory = () => {
               ))}
             </EntryList>
           ) : (
-            <p>Nu există înregistrări de dispoziție.</p>
+            <NoDataMessage>
+              <p>Nu există înregistrări de dispoziție.</p>
+              <p>Adaugă prima înregistrare folosind formularul de monitorizare a dispoziției.</p>
+            </NoDataMessage>
           )}
         </Card>
       )}
@@ -491,7 +536,10 @@ const MoodHistory = () => {
               )}
             </>
           ) : (
-            <p>Nu există date suficiente pentru calcularea statisticilor.</p>
+            <NoDataMessage>
+              <p>Nu există date suficiente pentru calcularea statisticilor.</p>
+              <p>Adaugă mai multe înregistrări pentru a vedea tendințe și corelații.</p>
+            </NoDataMessage>
           )}
         </Card>
       )}

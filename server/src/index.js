@@ -33,6 +33,19 @@ app.use(cors());
 app.use(express.json());
 app.use(authMiddleware);
 
+// Configurare mongoose pentru a evita avertismentele
+mongoose.set('toJSON', {
+  virtuals: true,
+  transform: function (doc, ret) {
+    // Adaugă câmpul id (necesar pentru GraphQL)
+    ret.id = ret._id.toString();
+    // Opțional, eliminarea _id și __v din output
+    // delete ret._id;
+    // delete ret.__v;
+    return ret;
+  }
+});
+
 // Conectare la MongoDB cu gestionarea erorilor și opțiuni îmbunătățite
 mongoose.connect(process.env.MONGODB_URI, {
   useNewUrlParser: true,
@@ -55,6 +68,18 @@ async function startApolloServer() {
     resolvers,
     context: ({ req }) => {
       return { req };
+    },
+    formatError: (error) => {
+      // Log detaliat pentru erori în dezvoltare
+      console.error('GraphQL Error:', error);
+      
+      // Returnează o versiune mai detaliată a erorii pentru client
+      return {
+        message: error.message,
+        locations: error.locations,
+        path: error.path,
+        extensions: error.extensions
+      };
     },
   });
 

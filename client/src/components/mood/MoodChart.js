@@ -8,25 +8,8 @@ import { ro } from 'date-fns/locale';
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend);
 
 const MoodChart = ({ entries }) => {
-  // Eliminăm console.log pentru a nu poluia testele
-  // console.log('MoodChart entries:', entries);
-  
-  // Filtrează intrările cu date valide
-  const validEntries = entries.filter(entry => {
-    if (!entry.date) return false;
-    const date = new Date(entry.date);
-    return isValid(date) && !isNaN(date.getTime());
-  });
-  
-  // Sortează intrările după dată (cea mai veche prima)
-  const sortedEntries = [...validEntries].sort((a, b) => {
-    const dateA = new Date(a.date);
-    const dateB = new Date(b.date);
-    return dateA - dateB;
-  });
-  
-  // Verificare dacă există intrări valide pentru a afișa graficul
-  if (sortedEntries.length === 0) {
+  // Verifică dacă entries este un array valid
+  if (!entries || !Array.isArray(entries) || entries.length === 0) {
     return (
       <div style={{ height: '300px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
         <p>Nu există date de dispoziție disponibile pentru afișare.</p>
@@ -34,18 +17,77 @@ const MoodChart = ({ entries }) => {
     );
   }
   
-  // Formatează datele pentru grafic cu validare
-  const labels = sortedEntries.map(entry => {
+  // Funcție pentru a verifica și converti data în format valid
+  const parseDate = (dateString) => {
+    if (!dateString) return null;
+    
     try {
-      const date = new Date(entry.date);
+      // Verifică dacă e deja un obiect Date
+      if (dateString instanceof Date) {
+        return isValid(dateString) ? dateString : null;
+      }
+      
+      // Încearcă să convertească string-ul la Date
+      const date = new Date(dateString);
+      return isValid(date) && !isNaN(date.getTime()) ? date : null;
+    } catch (error) {
+      console.error('Eroare la parsarea datei:', error);
+      return null;
+    }
+  };
+  
+  // Funcție pentru a formata data pentru afișare
+  const formatDateLabel = (dateString) => {
+    const date = parseDate(dateString);
+    if (!date) return 'Dată necunoscută';
+    
+    try {
       return format(date, 'EEE, d MMM', { locale: ro });
     } catch (error) {
-      console.error('Eroare formatare dată:', error);
-      return 'Dată invalidă';
+      console.error('Eroare la formatarea datei:', error);
+      return 'Dată necunoscută';
     }
+  };
+  
+  // Filtrează intrările cu date valide și valori de dispoziție valide
+  const validEntries = entries.filter(entry => {
+    if (!entry) return false;
+    
+    // Verifică dacă mood există și este un număr valid
+    if (entry.mood === undefined || entry.mood === null) return false;
+    const moodValue = Number(entry.mood);
+    if (isNaN(moodValue)) return false;
+    
+    // Verifică dacă data poate fi parsată
+    const date = parseDate(entry.date);
+    return date !== null;
   });
   
-  const moodData = sortedEntries.map(entry => entry.mood);
+  if (validEntries.length === 0) {
+    return (
+      <div style={{ height: '300px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <p>Nu există date de dispoziție valide pentru afișare.</p>
+      </div>
+    );
+  }
+  
+  // Convertește toate datele la obiecte Date pentru a putea fi sortate
+  const entriesWithDates = validEntries.map(entry => ({
+    ...entry,
+    parsedDate: parseDate(entry.date)
+  }));
+  
+  // Sortează intrările după dată (cea mai veche prima)
+  const sortedEntries = [...entriesWithDates].sort((a, b) => {
+    return a.parsedDate - b.parsedDate;
+  });
+  
+  // Extrage datele pentru grafic
+  const labels = sortedEntries.map(entry => formatDateLabel(entry.parsedDate));
+  const moodData = sortedEntries.map(entry => {
+    const moodValue = Number(entry.mood);
+    return isNaN(moodValue) ? 5 : moodValue; // Folosește 5 ca valoare implicită
+  });
   
   // Configurează datele pentru grafic
   const data = {
@@ -101,11 +143,21 @@ const MoodChart = ({ entries }) => {
               extraInfo.push(`Note: ${entry.notes}`);
             }
             
+            // Verifică dacă factorii există înainte de a-i accesa
             if (entry && entry.factors) {
-              if (entry.factors.sleep) extraInfo.push(`Somn: ${entry.factors.sleep}/5`);
-              if (entry.factors.stress) extraInfo.push(`Stres: ${entry.factors.stress}/5`);
-              if (entry.factors.activity) extraInfo.push(`Activitate: ${entry.factors.activity}/5`);
-              if (entry.factors.social) extraInfo.push(`Social: ${entry.factors.social}/5`);
+              // Verifică fiecare factor individual
+              if (entry.factors.sleep !== undefined && entry.factors.sleep !== null) {
+                extraInfo.push(`Somn: ${entry.factors.sleep}/5`);
+              }
+              if (entry.factors.stress !== undefined && entry.factors.stress !== null) {
+                extraInfo.push(`Stres: ${entry.factors.stress}/5`);
+              }
+              if (entry.factors.activity !== undefined && entry.factors.activity !== null) {
+                extraInfo.push(`Activitate: ${entry.factors.activity}/5`);
+              }
+              if (entry.factors.social !== undefined && entry.factors.social !== null) {
+                extraInfo.push(`Social: ${entry.factors.social}/5`);
+              }
             }
             
             return extraInfo;

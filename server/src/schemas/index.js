@@ -214,8 +214,8 @@ const typeDefs = gql`
     me: User
     
     # Mood queries
-    getMoodEntries(limit: Int, offset: Int): [MoodEntry]
-    getMoodEntry(id: ID!): MoodEntry
+    getMoodEntries(limit: Int, offset: Int): [MoodEntry!]!
+    getMoodEntry(id: ID!): MoodEntry!
     getMoodStatistics(startDate: String, endDate: String): MoodStatistics
     
     # Exercise queries
@@ -240,8 +240,8 @@ const typeDefs = gql`
     updateUser(input: UpdateUserInput!): User
     
     # Mood mutations
-    createMoodEntry(input: CreateMoodEntryInput!): MoodEntry
-    updateMoodEntry(id: ID!, input: CreateMoodEntryInput!): MoodEntry
+    createMoodEntry(input: CreateMoodEntryInput!): MoodEntry!
+    updateMoodEntry(id: ID!, input: CreateMoodEntryInput!): MoodEntry!
     deleteMoodEntry(id: ID!): Boolean
     
     # Exercise mutations
