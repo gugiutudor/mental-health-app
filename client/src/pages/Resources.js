@@ -238,17 +238,24 @@ const Resources = () => {
     }
   };
 
-  // Filtrează resursele în funcție de căutare
-  const filteredResources = data?.getResources.filter(resource => {
-    if (!searchQuery) return true;
+  // Filtrează resursele în funcție de căutare - cu verificări pentru null/undefined
+  const filteredResources = React.useMemo(() => {
+    // Verifică dacă data și getResources există
+    if (!data || !data.getResources) return [];
     
-    const query = searchQuery.toLowerCase();
-    return (
-      resource.title.toLowerCase().includes(query) ||
-      resource.description.toLowerCase().includes(query) ||
-      resource.tags.some(tag => tag.toLowerCase().includes(query))
-    );
-  });
+    return data.getResources.filter(resource => {
+      if (!resource) return false;
+      if (!searchQuery) return true;
+      
+      const query = searchQuery.toLowerCase();
+      return (
+        (resource.title && resource.title.toLowerCase().includes(query)) ||
+        (resource.description && resource.description.toLowerCase().includes(query)) ||
+        (resource.tags && Array.isArray(resource.tags) && 
+         resource.tags.some(tag => tag && tag.toLowerCase().includes(query)))
+      );
+    });
+  }, [data, searchQuery]);
 
   return (
     <ResourcesContainer>
@@ -312,7 +319,7 @@ const Resources = () => {
               <ResourceCardContent>
                 <ResourceTitle>{resource.title}</ResourceTitle>
                 <ResourceDescription>
-                  {resource.description.length > 120
+                  {resource.description && resource.description.length > 120
                     ? `${resource.description.substring(0, 120)}...`
                     : resource.description}
                 </ResourceDescription>
@@ -333,7 +340,11 @@ const Resources = () => {
                     </ResourceTagContainer>
                   )}
                   
-                  <ViewButton href={resource.url} target="_blank" rel="noopener noreferrer">
+                  <ViewButton 
+                    href={resource.url} 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                  >
                     Accesează resursa
                   </ViewButton>
                 </div>

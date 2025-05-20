@@ -1,18 +1,40 @@
 import React from 'react';
 import { Line } from 'react-chartjs-2';
 import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend } from 'chart.js';
-import { format } from 'date-fns';
+import { format, isValid } from 'date-fns';
 import { ro } from 'date-fns/locale';
 
 // Înregistrează componentele ChartJS
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend);
 
 const MoodChart = ({ entries }) => {
-  // Sortează intrările după dată (cea mai veche prima)
-  const sortedEntries = [...entries].sort((a, b) => new Date(a.date) - new Date(b.date));
+  console.log('MoodChart entries:', entries); // Log pentru debugging
   
-  // Formatează datele pentru grafic
-  const labels = sortedEntries.map(entry => format(new Date(entry.date), 'EEE, d MMM', { locale: ro }));
+  // Filtrează intrările cu date valide
+  const validEntries = entries.filter(entry => {
+    if (!entry.date) return false;
+    const date = new Date(entry.date);
+    return !isNaN(date.getTime());
+  });
+  
+  // Sortează intrările după dată (cea mai veche prima)
+  const sortedEntries = [...validEntries].sort((a, b) => {
+    const dateA = new Date(a.date);
+    const dateB = new Date(b.date);
+    return dateA - dateB;
+  });
+  
+  // Formatează datele pentru grafic cu validare
+  const labels = sortedEntries.map(entry => {
+    try {
+      const date = new Date(entry.date);
+      return format(date, 'EEE, d MMM', { locale: ro });
+    } catch (error) {
+      console.error('Eroare formatare dată:', error);
+      return 'Dată invalidă';
+    }
+  });
+  
   const moodData = sortedEntries.map(entry => entry.mood);
   
   // Configurează datele pentru grafic
@@ -65,11 +87,11 @@ const MoodChart = ({ entries }) => {
             const entry = sortedEntries[entryIndex];
             let extraInfo = [];
             
-            if (entry.notes) {
+            if (entry && entry.notes) {
               extraInfo.push(`Note: ${entry.notes}`);
             }
             
-            if (entry.factors) {
+            if (entry && entry.factors) {
               if (entry.factors.sleep) extraInfo.push(`Somn: ${entry.factors.sleep}/5`);
               if (entry.factors.stress) extraInfo.push(`Stres: ${entry.factors.stress}/5`);
               if (entry.factors.activity) extraInfo.push(`Activitate: ${entry.factors.activity}/5`);
@@ -82,6 +104,15 @@ const MoodChart = ({ entries }) => {
       }
     }
   };
+
+  // Verificare dacă există intrări valide pentru a afișa graficul
+  if (sortedEntries.length === 0) {
+    return (
+      <div style={{ height: '300px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <p>Nu există date de dispoziție disponibile pentru afișare.</p>
+      </div>
+    );
+  }
   
   return (
     <div style={{ height: '300px' }}>
