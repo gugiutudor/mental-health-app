@@ -1,10 +1,12 @@
+// server/src/schemas/index.js
 const { gql } = require('apollo-server-express');
 
 const typeDefs = gql`
   type User {
     id: ID!
     email: String!
-    name: String!
+    firstName: String!
+    lastName: String!
     dateJoined: String!
     preferences: UserPreferences
     streak: Int
@@ -123,7 +125,8 @@ const typeDefs = gql`
   input RegisterInput {
     email: String!
     password: String!
-    name: String!
+    firstName: String!
+    lastName: String!
   }
 
   input LoginInput {
@@ -200,7 +203,8 @@ const typeDefs = gql`
   }
 
   input UpdateUserInput {
-    name: String
+    firstName: String
+    lastName: String
     email: String
     preferences: UserPreferencesInput
   }

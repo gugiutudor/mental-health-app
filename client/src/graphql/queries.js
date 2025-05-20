@@ -5,7 +5,8 @@ export const GET_USER_PROFILE = gql`
   query GetUserProfile {
     me {
       id
-      name
+      firstName
+      lastName
       email
       dateJoined
       preferences {
@@ -18,6 +19,8 @@ export const GET_USER_PROFILE = gql`
     }
   }
 `;
+
+// Celelalte queries rămân neschimbate
 
 // Mood queries
 export const GET_MOOD_ENTRIES = gql`

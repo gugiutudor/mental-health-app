@@ -1,4 +1,4 @@
-// Test pentru GraphQL queries și mutations
+// Test pentru GraphQL queries și mutations - actualizat pentru firstName/lastName
 import { GET_USER_PROFILE, GET_MOOD_ENTRIES, GET_RECOMMENDED_EXERCISES } from '../../src/graphql/queries';
 import { LOGIN_USER, REGISTER_USER, CREATE_MOOD_ENTRY } from '../../src/graphql/mutations';
 
@@ -8,7 +8,8 @@ describe('GraphQL Queries', () => {
     expect(GET_USER_PROFILE.loc.source.body).toContain('query GetUserProfile');
     expect(GET_USER_PROFILE.loc.source.body).toContain('me {');
     expect(GET_USER_PROFILE.loc.source.body).toContain('id');
-    expect(GET_USER_PROFILE.loc.source.body).toContain('name');
+    expect(GET_USER_PROFILE.loc.source.body).toContain('firstName');
+    expect(GET_USER_PROFILE.loc.source.body).toContain('lastName');
     expect(GET_USER_PROFILE.loc.source.body).toContain('email');
     expect(GET_USER_PROFILE.loc.source.body).toContain('dateJoined');
     expect(GET_USER_PROFILE.loc.source.body).toContain('preferences {');
@@ -40,6 +41,8 @@ describe('GraphQL Mutations', () => {
     expect(LOGIN_USER.loc.source.body).toContain('login(input: $input)');
     expect(LOGIN_USER.loc.source.body).toContain('token');
     expect(LOGIN_USER.loc.source.body).toContain('user {');
+    expect(LOGIN_USER.loc.source.body).toContain('firstName');
+    expect(LOGIN_USER.loc.source.body).toContain('lastName');
   });
 
   it('should have the correct structure for REGISTER_USER', () => {
@@ -48,6 +51,8 @@ describe('GraphQL Mutations', () => {
     expect(REGISTER_USER.loc.source.body).toContain('register(input: $input)');
     expect(REGISTER_USER.loc.source.body).toContain('token');
     expect(REGISTER_USER.loc.source.body).toContain('user {');
+    expect(REGISTER_USER.loc.source.body).toContain('firstName');
+    expect(REGISTER_USER.loc.source.body).toContain('lastName');
   });
 
   it('should have the correct structure for CREATE_MOOD_ENTRY', () => {

@@ -1,4 +1,4 @@
-// Testare user resolver - Versiune corectată și actualizată
+// Testare user resolver - Versiune actualizată pentru firstName/lastName
 const { AuthenticationError, UserInputError } = require('apollo-server-express');
 const userResolvers = require('../../src/resolvers/user');
 const { User } = require('../../src/models');
@@ -47,7 +47,12 @@ describe('User Resolvers', () => {
       
       it('should return user when authenticated', async () => {
         // Setup
-        const mockUser = { id: '1', name: 'Test User', email: 'test@example.com' };
+        const mockUser = { 
+          id: '1', 
+          firstName: 'Test', 
+          lastName: 'User', 
+          email: 'test@example.com' 
+        };
         User.findById.mockResolvedValue(mockUser);
         const req = { user: { id: '1' } };
         
@@ -103,6 +108,8 @@ describe('User Resolvers', () => {
         // Setup
         const mockUser = {
           id: '1',
+          firstName: 'Test',
+          lastName: 'User',
           email: 'test@example.com',
           comparePassword: jest.fn().mockResolvedValue(true),
           save: jest.fn().mockResolvedValue(true)
@@ -127,7 +134,8 @@ describe('User Resolvers', () => {
         // Setup
         User.findOne.mockResolvedValue({ email: 'existing@example.com' });
         const input = { 
-          name: 'New User', 
+          firstName: 'New',
+          lastName: 'User', 
           email: 'existing@example.com', 
           password: 'password' 
         };
@@ -143,7 +151,8 @@ describe('User Resolvers', () => {
         
         const mockUser = {
           id: '2',
-          name: 'New User',
+          firstName: 'New',
+          lastName: 'User',
           email: 'new@example.com',
           save: jest.fn().mockResolvedValue(true)
         };
@@ -153,7 +162,8 @@ describe('User Resolvers', () => {
         mockUserConstructor.mockReturnValueOnce(mockUser);
         
         const input = { 
-          name: 'New User', 
+          firstName: 'New',
+          lastName: 'User', 
           email: 'new@example.com', 
           password: 'password' 
         };
@@ -184,7 +194,7 @@ describe('User Resolvers', () => {
       it('should throw error when user is not authenticated', async () => {
         // Setup
         const req = { user: null };
-        const input = { name: 'Updated Name' };
+        const input = { firstName: 'Updated', lastName: 'Name' };
         
         // Execute & Verify
         await expect(userResolvers.Mutation.updateUser(null, { input }, { req }))
@@ -195,7 +205,8 @@ describe('User Resolvers', () => {
         // Setup
         const req = { user: { id: '1' } };
         const input = { 
-          name: 'Updated Name',
+          firstName: 'Updated',
+          lastName: 'Name',
           email: 'updated@example.com',
           preferences: {
             notifications: false
@@ -204,7 +215,8 @@ describe('User Resolvers', () => {
         
         const mockUser = {
           id: '1',
-          name: 'Original Name',
+          firstName: 'Original',
+          lastName: 'Name',
           email: 'original@example.com',
           preferences: {
             notifications: true,
@@ -219,7 +231,8 @@ describe('User Resolvers', () => {
         const result = await userResolvers.Mutation.updateUser(null, { input }, { req });
         
         // Verify
-        expect(result.name).toBe('Updated Name');
+        expect(result.firstName).toBe('Updated');
+        expect(result.lastName).toBe('Name');
         expect(result.email).toBe('updated@example.com');
         expect(result.preferences.notifications).toBe(false);
         expect(result.preferences.theme).toBe('light'); // păstrează valoarea existentă

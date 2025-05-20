@@ -1,5 +1,4 @@
-
-// Test pentru componenta Header
+// Test pentru componenta Header actualizat pentru firstName/lastName
 import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { BrowserRouter } from 'react-router-dom';
@@ -39,11 +38,12 @@ describe('Header Component', () => {
     expect(screen.queryByText('Resurse')).not.toBeInTheDocument();
     expect(screen.queryByText('Profil')).not.toBeInTheDocument();
     expect(screen.queryByText('Deconectare')).not.toBeInTheDocument();
+    expect(screen.queryByText(/Salut/)).not.toBeInTheDocument();
   });
   
-  it('renders user navigation when user is logged in', () => {
+  it('renders user navigation and greeting when user is logged in', () => {
     // Pregătim localStorage cu date de utilizator
-    const userData = { name: 'Test User', email: 'test@example.com' };
+    const userData = { firstName: 'Test', lastName: 'User', email: 'test@example.com' };
     localStorage.setItem('token', 'fake-token');
     localStorage.setItem('user', JSON.stringify(userData));
     
@@ -55,6 +55,9 @@ describe('Header Component', () => {
     expect(screen.getByText('Resurse')).toBeInTheDocument();
     expect(screen.getByText('Profil')).toBeInTheDocument();
     expect(screen.getByText('Deconectare')).toBeInTheDocument();
+    
+    // Verifică că salutul personalizat este afișat cu prenumele utilizatorului
+    expect(screen.getByText(`Salut, ${userData.firstName}!`)).toBeInTheDocument();
     
     // Verifică că linkurile pentru utilizatori neautentificați NU sunt afișate
     expect(screen.queryByText('Autentificare')).not.toBeInTheDocument();
@@ -70,7 +73,7 @@ describe('Header Component', () => {
   
   it('logs out when clicking the logout button', () => {
     // Pregătim localStorage cu date de utilizator
-    const userData = { name: 'Test User', email: 'test@example.com' };
+    const userData = { firstName: 'Test', lastName: 'User', email: 'test@example.com' };
     localStorage.setItem('token', 'fake-token');
     localStorage.setItem('user', JSON.stringify(userData));
     

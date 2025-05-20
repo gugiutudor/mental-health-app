@@ -1,4 +1,4 @@
-// Cypress test pentru dashboard și funcționalități de bază
+// Cypress test pentru dashboard și funcționalități de bază - actualizat pentru firstName/lastName
 describe('Dashboard și funcționalități principale', () => {
   beforeEach(() => {
     // Autentificare înainte de fiecare test
@@ -13,7 +13,8 @@ describe('Dashboard și funcționalități principale', () => {
               token: 'fake-token',
               user: {
                 id: '1',
-                name: 'Test User',
+                firstName: 'Test',
+                lastName: 'User',
                 email: 'test@example.com',
                 dateJoined: new Date().toISOString(),
                 preferences: {
@@ -233,7 +234,8 @@ describe('Dashboard și funcționalități principale', () => {
           data: {
             me: {
               id: '1',
-              name: 'Test User',
+              firstName: 'Test',
+              lastName: 'User',
               email: 'test@example.com',
               dateJoined: new Date().toISOString(),
               preferences: {
@@ -261,7 +263,8 @@ describe('Dashboard și funcționalități principale', () => {
     
     // Verifică afișarea datelor profilului
     cy.contains('Editează profilul').should('be.visible');
-    cy.get('input[name="name"]').should('have.value', 'Test User');
+    cy.get('input[name="firstName"]').should('have.value', 'Test');
+    cy.get('input[name="lastName"]').should('have.value', 'User');
     cy.get('input[name="email"]').should('have.value', 'test@example.com');
   });
 

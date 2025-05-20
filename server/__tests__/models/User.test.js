@@ -1,4 +1,4 @@
-// Testare model User
+// Testare model User - Actualizat pentru firstName și lastName
 const mongoose = require('mongoose');
 const { MongoMemoryServer } = require('mongodb-memory-server');
 const { User } = require('../../src/models');
@@ -23,9 +23,10 @@ afterAll(async () => {
 });
 
 describe('User Model', () => {
-  it('should create a new user successfully', async () => {
+  it('should create a new user successfully with firstName and lastName', async () => {
     const userData = {
-      name: 'Test User',
+      firstName: 'Test',
+      lastName: 'User',
       email: 'test@example.com',
       password: 'password123'
     };
@@ -35,17 +36,48 @@ describe('User Model', () => {
     
     // Verifică dacă utilizatorul a fost salvat
     expect(savedUser._id).toBeDefined();
-    expect(savedUser.name).toBe(userData.name);
+    expect(savedUser.firstName).toBe(userData.firstName);
+    expect(savedUser.lastName).toBe(userData.lastName);
     expect(savedUser.email).toBe(userData.email);
+    
+    // Verifică dacă câmpul virtual name returnează firstName + lastName
+    expect(savedUser.name).toBe(`${userData.firstName} ${userData.lastName}`);
     
     // Verifică dacă parola a fost hash-uită
     expect(savedUser.password).not.toBe(userData.password);
   });
   
+  it('should fail to create user without firstName', async () => {
+    const userData = {
+      lastName: 'User',
+      email: 'missing-firstname@example.com',
+      password: 'password123'
+    };
+    
+    const user = new User(userData);
+    
+    // Ar trebui să arunce o eroare pentru că firstName este obligatoriu
+    await expect(user.save()).rejects.toThrow();
+  });
+  
+  it('should fail to create user without lastName', async () => {
+    const userData = {
+      firstName: 'Test',
+      email: 'missing-lastname@example.com',
+      password: 'password123'
+    };
+    
+    const user = new User(userData);
+    
+    // Ar trebui să arunce o eroare pentru că lastName este obligatoriu
+    await expect(user.save()).rejects.toThrow();
+  });
+  
   it('should fail to create user with duplicate email', async () => {
     // Creează primul utilizator
     const userData = {
-      name: 'First User',
+      firstName: 'First',
+      lastName: 'User',
       email: 'duplicate@example.com',
       password: 'password123'
     };
@@ -55,7 +87,8 @@ describe('User Model', () => {
     
     // Încearcă să creezi al doilea utilizator cu același email
     const duplicateUser = new User({
-      name: 'Second User',
+      firstName: 'Second',
+      lastName: 'User',
       email: 'duplicate@example.com',
       password: 'anotherpassword'
     });
@@ -66,7 +99,8 @@ describe('User Model', () => {
   
   it('should compare password correctly', async () => {
     const userData = {
-      name: 'Password Test User',
+      firstName: 'Password',
+      lastName: 'Test',
       email: 'password@example.com',
       password: 'correctpassword'
     };

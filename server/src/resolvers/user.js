@@ -1,3 +1,5 @@
+// În fișierul server/src/resolvers/user.js
+
 const jwt = require('jsonwebtoken');
 const { AuthenticationError, UserInputError } = require('apollo-server-express');
 const { User } = require('../models');
@@ -36,7 +38,7 @@ const userResolvers = {
   
   Mutation: {
     register: async (_, { input }) => {
-      const { email, password, name } = input;
+      const { email, password, firstName, lastName } = input;
       
       try {
         // Verifică dacă email-ul există deja
@@ -49,7 +51,8 @@ const userResolvers = {
         const user = new User({
           email,
           password,
-          name
+          firstName,
+          lastName
         });
         
         // Salvează utilizatorul în baza de date
@@ -112,7 +115,8 @@ const userResolvers = {
         }
         
         // Actualizează câmpurile furnizate
-        if (input.name) user.name = input.name;
+        if (input.firstName) user.firstName = input.firstName;
+        if (input.lastName) user.lastName = input.lastName;
         if (input.email) user.email = input.email;
         if (input.preferences) {
           user.preferences = {

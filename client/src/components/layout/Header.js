@@ -52,6 +52,19 @@ const LogoutButton = styled.button`
   }
 `;
 
+const UserInfo = styled.div`
+  display: flex;
+  align-items: center;
+  margin-right: 1rem;
+  
+  span {
+    color: white;
+    font-size: 0.9rem;
+    opacity: 0.9;
+    margin-right: 0.5rem;
+  }
+`;
+
 const Header = () => {
   const navigate = useNavigate();
   const { currentUser, logout } = useAuth();
@@ -72,6 +85,9 @@ const Header = () => {
               <NavLink to="/">Dashboard</NavLink>
               <NavLink to="/exercises">Exerciții</NavLink>
               <NavLink to="/resources">Resurse</NavLink>
+              <UserInfo>
+                <span>Salut, {currentUser.firstName || ''}!</span>
+              </UserInfo>
               <NavLink to="/profile">Profil</NavLink>
               <LogoutButton onClick={handleLogout}>Deconectare</LogoutButton>
             </>

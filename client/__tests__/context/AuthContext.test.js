@@ -1,4 +1,4 @@
-// Test pentru AuthContext
+// Test pentru AuthContext actualizat pentru firstName/lastName
 import React from 'react';
 import { render, screen, fireEvent, act } from '@testing-library/react';
 import { AuthProvider, useAuth } from '../../src/context/AuthContext';
@@ -13,11 +13,11 @@ const TestComponent = () => {
       {error && <p>Error: {error}</p>}
       {currentUser ? (
         <>
-          <p>User: {currentUser.name}</p>
+          <p>User: {currentUser.firstName} {currentUser.lastName}</p>
           <button onClick={logout}>Logout</button>
         </>
       ) : (
-        <button onClick={() => login({name: 'Test User', email: 'test@example.com'}, 'fake-token')}>
+        <button onClick={() => login({firstName: 'Test', lastName: 'User', email: 'test@example.com'}, 'fake-token')}>
           Login
         </button>
       )}
@@ -34,7 +34,7 @@ describe('AuthContext', () => {
   
   it('should provide current user when token exists in localStorage', () => {
     // Pregătire localStorage cu un utilizator și token
-    const userData = { name: 'Stored User', email: 'stored@example.com' };
+    const userData = { firstName: 'Stored', lastName: 'User', email: 'stored@example.com' };
     localStorage.setItem('token', 'stored-token');
     localStorage.setItem('user', JSON.stringify(userData));
     
@@ -46,7 +46,7 @@ describe('AuthContext', () => {
     );
     
     // Verifică dacă utilizatorul este afișat
-    expect(screen.getByText(`User: ${userData.name}`)).toBeInTheDocument();
+    expect(screen.getByText(`User: ${userData.firstName} ${userData.lastName}`)).toBeInTheDocument();
   });
   
   it('should allow login and store user data', () => {
@@ -68,12 +68,17 @@ describe('AuthContext', () => {
     
     // Verifică dacă datele au fost stocate în localStorage
     expect(localStorage.getItem('token')).toBe('fake-token');
-    expect(localStorage.getItem('user')).toBe(JSON.stringify({name: 'Test User', email: 'test@example.com'}));
+    
+    // Verificăm că localStorage conține datele utilizatorului
+    const storedUser = JSON.parse(localStorage.getItem('user') || '{}');
+    expect(storedUser.firstName).toBe('Test');
+    expect(storedUser.lastName).toBe('User');
+    expect(storedUser.email).toBe('test@example.com');
   });
   
   it('should allow logout and clear user data', () => {
     // Pregătire localStorage cu un utilizator și token
-    const userData = { name: 'Stored User', email: 'stored@example.com' };
+    const userData = { firstName: 'Stored', lastName: 'User', email: 'stored@example.com' };
     localStorage.setItem('token', 'stored-token');
     localStorage.setItem('user', JSON.stringify(userData));
     
@@ -85,7 +90,7 @@ describe('AuthContext', () => {
     );
     
     // Verifică că avem un utilizator inițial
-    expect(screen.getByText(`User: ${userData.name}`)).toBeInTheDocument();
+    expect(screen.getByText(`User: ${userData.firstName} ${userData.lastName}`)).toBeInTheDocument();
     
     // Apasă butonul de logout
     fireEvent.click(screen.getByText('Logout'));
@@ -96,6 +101,23 @@ describe('AuthContext', () => {
     // Verifică dacă datele au fost eliminate din localStorage
     expect(localStorage.getItem('token')).toBeNull();
     expect(localStorage.getItem('user')).toBeNull();
+  });
+  
+  it('should handle backward compatibility with name field', () => {
+    // Pregătire localStorage cu un utilizator care are doar câmpul "name"
+    const userData = { name: 'Legacy User', email: 'legacy@example.com' };
+    localStorage.setItem('token', 'stored-token');
+    localStorage.setItem('user', JSON.stringify(userData));
+    
+    // Randează componenta
+    render(
+      <AuthProvider>
+        <TestComponent />
+      </AuthProvider>
+    );
+    
+    // Verifică dacă AuthContext a parsat corect numele în firstName și lastName
+    expect(screen.getByText('User: Legacy User')).toBeInTheDocument();
   });
   
   it('should handle invalid user data in localStorage', () => {

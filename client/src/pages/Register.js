@@ -24,14 +24,17 @@ const Register = () => {
 
   const formik = useFormik({
     initialValues: {
-      name: '',
+      firstName: '',
+      lastName: '',
       email: '',
       password: '',
       confirmPassword: ''
     },
     validationSchema: Yup.object({
-      name: Yup.string()
-        .required('Numele este obligatoriu'),
+      firstName: Yup.string()
+        .required('Prenumele este obligatoriu'),
+      lastName: Yup.string()
+        .required('Numele de familie este obligatoriu'),
       email: Yup.string()
         .email('Adresa de email invalidă')
         .required('Adresa de email este obligatorie'),
@@ -47,7 +50,8 @@ const Register = () => {
         const { data } = await registerUser({
           variables: {
             input: {
-              name: values.name,
+              firstName: values.firstName,
+              lastName: values.lastName,
               email: values.email,
               password: values.password
             }
@@ -72,15 +76,27 @@ const Register = () => {
       
       <Form onSubmit={formik.handleSubmit}>
         <TextField
-          id="name"
-          label="Nume"
+          id="firstName"
+          label="Prenume"
           type="text"
           onChange={formik.handleChange}
           onBlur={formik.handleBlur}
-          value={formik.values.name}
-          error={formik.errors.name}
-          touched={formik.touched.name}
-          placeholder="Introdu numele tău"
+          value={formik.values.firstName}
+          error={formik.errors.firstName}
+          touched={formik.touched.firstName}
+          placeholder="Introdu prenumele tău"
+        />
+
+        <TextField
+          id="lastName"
+          label="Nume de familie"
+          type="text"
+          onChange={formik.handleChange}
+          onBlur={formik.handleBlur}
+          value={formik.values.lastName}
+          error={formik.errors.lastName}
+          touched={formik.touched.lastName}
+          placeholder="Introdu numele de familie"
         />
 
         <TextField

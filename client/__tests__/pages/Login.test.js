@@ -1,4 +1,4 @@
-// Test actualizat pentru Login.test.js
+// Test actualizat pentru Login.test.js cu firstName/lastName
 import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
@@ -20,7 +20,8 @@ jest.mock('react-router-dom', () => {
 describe('Login Page', () => {
   const mockUserData = {
     id: '1',
-    name: 'Test User',
+    firstName: 'Test',
+    lastName: 'User',
     email: 'test@example.com',
     dateJoined: new Date().toISOString(),
     preferences: {
@@ -87,7 +88,6 @@ describe('Login Page', () => {
     renderLoginPage();
     
     // Verifică dacă elementele formularului sunt prezente
-    // Folosim getByRole pentru h2 ca să evităm ambiguitatea
     expect(screen.getByRole('heading', { name: /autentificare/i })).toBeInTheDocument();
     expect(screen.getByLabelText(/email/i)).toBeInTheDocument();
     expect(screen.getByLabelText(/parolă/i)).toBeInTheDocument();
@@ -132,7 +132,9 @@ describe('Login Page', () => {
       // Verifică dacă datele utilizatorului au fost salvate în localStorage
       expect(localStorage.getItem('token')).toBe('fake-token');
       const savedUser = JSON.parse(localStorage.getItem('user') || '{}');
-      expect(savedUser.id).toBe(mockUserData.id);
+      expect(savedUser.firstName).toBe(mockUserData.firstName);
+      expect(savedUser.lastName).toBe(mockUserData.lastName);
+      expect(savedUser.email).toBe(mockUserData.email);
     });
   });
 
@@ -172,9 +174,9 @@ describe('Login Page', () => {
     // Trimite formularul
     fireEvent.click(screen.getByRole('button', { name: /autentificare/i }));
     
-    // Așteaptă afișarea mesajului de eroare - folosim o verificare mai flexibilă
+    // Așteaptă afișarea mesajului de eroare
     await waitFor(() => {
-      // Verificăm orice mesaj de eroare, nu specific
+      // Verificăm mesajul de eroare
       const errorMessage = screen.getByText(/email sau parolă incorectă/i);
       expect(errorMessage).toBeInTheDocument();
     });

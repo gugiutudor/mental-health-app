@@ -1,4 +1,4 @@
-// Testare MoodEntry model
+// Testare MoodEntry model - Actualizat pentru firstName/lastName
 const mongoose = require('mongoose');
 const { MongoMemoryServer } = require('mongodb-memory-server');
 const { MoodEntry, User } = require('../../src/models');
@@ -18,7 +18,8 @@ beforeAll(async () => {
   
   // Creează un utilizator de test pentru referință
   testUser = new User({
-    name: 'Mood Test User',
+    firstName: 'Mood',
+    lastName: 'Test User',
     email: 'mood@example.com',
     password: 'password123'
   });

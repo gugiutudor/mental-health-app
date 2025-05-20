@@ -1,4 +1,4 @@
-// Test corectat pentru componenta MoodChart
+// Test pentru componenta MoodChart - corectat
 import React from 'react';
 import { render, screen } from '@testing-library/react';
 import MoodChart from '../../src/components/mood/MoodChart';
@@ -17,8 +17,13 @@ jest.mock('react-chartjs-2', () => ({
 // Mock pentru date-fns
 jest.mock('date-fns', () => ({
   format: jest.fn().mockImplementation((date, format, options) => 'Formatted Date'),
+  isValid: jest.fn().mockReturnValue(true),
   locale: { ro: {} }
 }));
+
+// Mock pentru console.log să nu polueze output-ul testelor
+jest.spyOn(console, 'log').mockImplementation(() => {});
+jest.spyOn(console, 'error').mockImplementation(() => {});
 
 describe('MoodChart Component', () => {
   const mockEntries = [
@@ -59,17 +64,6 @@ describe('MoodChart Component', () => {
       }
     }
   ];
-
-  it('renders chart with loading state when no entries are provided', () => {
-    render(<MoodChart entries={[]} />);
-    
-    // Verifică dacă componentul de grafic este afișat
-    expect(screen.getByTestId('mock-chart')).toBeInTheDocument();
-    
-    // Verifică dacă datele graficului sunt vide
-    const chartData = JSON.parse(screen.getByTestId('chart-data').textContent);
-    expect(chartData.datasets[0].data).toEqual([]);
-  });
 
   it('renders chart with correct data when entries are provided', () => {
     render(<MoodChart entries={mockEntries} />);
@@ -125,32 +119,13 @@ describe('MoodChart Component', () => {
     expect(chartOptions.plugins.tooltip).toBeDefined();
   });
 
-  // Renunțăm la acest test care e prea fragil și depinde de implementarea internă
-  /*
-  it('handles tooltip callbacks correctly', () => {
-    render(<MoodChart entries={mockEntries} />);
+  it('displays a message when no entries are available', () => {
+    render(<MoodChart entries={[]} />);
     
-    // Extragem opțiunile graficului și callback-ul tooltip-ului
-    const chartOptions = JSON.parse(screen.getByTestId('chart-options').textContent);
-    const afterLabelCallback = eval(`(${chartOptions.plugins.tooltip.callbacks.afterLabel.toString()})`);
+    // Verifică mesajul afișat când nu există intrări
+    expect(screen.getByText('Nu există date de dispoziție disponibile pentru afișare.')).toBeInTheDocument();
     
-    // Simulăm apelul callback-ului cu date de test
-    const context = {
-      dataIndex: 0 // Primul element din mockEntries
-    };
-    
-    // Sortăm mockEntries după dată (cea mai veche prima)
-    const sortedEntries = [...mockEntries].sort((a, b) => new Date(a.date) - new Date(b.date));
-    
-    // Apelăm callback-ul
-    const result = afterLabelCallback(context, { dataPoints: [{ dataIndex: 0 }], dataset: { data: [8, 6, 7] } });
-    
-    // Verificăm că rezultatul conține informațiile așteptate
-    expect(result).toContain('Note: O zi normală');
-    expect(result).toContain('Somn: 3/5');
-    expect(result).toContain('Stres: 3/5');
-    expect(result).toContain('Activitate: 3/5');
-    expect(result).toContain('Social: 3/5');
+    // Verifică că graficul nu este afișat
+    expect(screen.queryByTestId('mock-chart')).not.toBeInTheDocument();
   });
-  */
 });

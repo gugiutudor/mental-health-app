@@ -8,13 +8,14 @@ import { ro } from 'date-fns/locale';
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend);
 
 const MoodChart = ({ entries }) => {
-  console.log('MoodChart entries:', entries); // Log pentru debugging
+  // Eliminăm console.log pentru a nu poluia testele
+  // console.log('MoodChart entries:', entries);
   
   // Filtrează intrările cu date valide
   const validEntries = entries.filter(entry => {
     if (!entry.date) return false;
     const date = new Date(entry.date);
-    return !isNaN(date.getTime());
+    return isValid(date) && !isNaN(date.getTime());
   });
   
   // Sortează intrările după dată (cea mai veche prima)
@@ -23,6 +24,15 @@ const MoodChart = ({ entries }) => {
     const dateB = new Date(b.date);
     return dateA - dateB;
   });
+  
+  // Verificare dacă există intrări valide pentru a afișa graficul
+  if (sortedEntries.length === 0) {
+    return (
+      <div style={{ height: '300px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <p>Nu există date de dispoziție disponibile pentru afișare.</p>
+      </div>
+    );
+  }
   
   // Formatează datele pentru grafic cu validare
   const labels = sortedEntries.map(entry => {
@@ -104,15 +114,6 @@ const MoodChart = ({ entries }) => {
       }
     }
   };
-
-  // Verificare dacă există intrări valide pentru a afișa graficul
-  if (sortedEntries.length === 0) {
-    return (
-      <div style={{ height: '300px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-        <p>Nu există date de dispoziție disponibile pentru afișare.</p>
-      </div>
-    );
-  }
   
   return (
     <div style={{ height: '300px' }}>

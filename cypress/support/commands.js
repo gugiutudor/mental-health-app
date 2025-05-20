@@ -1,10 +1,10 @@
-// Custom commands pentru Cypress
+// Custom commands pentru Cypress - actualizate pentru firstName/lastName
 // ***********************************************
 // Aici poți adăuga comenzi personalizate și suprascrie
 // comenzi existente.
 // ***********************************************
 
-// Comandă pentru a simula autentificarea
+// Comandă pentru a simula autentificarea cu firstName și lastName
 Cypress.Commands.add('login', (email = 'test@example.com', password = 'password123') => {
   // Mock pentru autentificare
   cy.intercept('POST', '/graphql', (req) => {
@@ -15,7 +15,8 @@ Cypress.Commands.add('login', (email = 'test@example.com', password = 'password1
             token: 'fake-token',
             user: {
               id: '1',
-              name: 'Test User',
+              firstName: 'Test',
+              lastName: 'User',
               email: email,
               dateJoined: new Date().toISOString(),
               preferences: {
@@ -95,6 +96,46 @@ Cypress.Commands.add('waitForComponent', (selector, options = {}) => {
     
     checkElement();
   });
+});
+
+// Comandă pentru a simula înregistrarea unui utilizator nou
+Cypress.Commands.add('register', (firstName = 'Test', lastName = 'User', email = 'test@example.com', password = 'password123') => {
+  // Mock pentru înregistrare
+  cy.intercept('POST', '/graphql', (req) => {
+    if (req.body.operationName === 'RegisterUser') {
+      req.reply({
+        data: {
+          register: {
+            token: 'fake-token',
+            user: {
+              id: '1',
+              firstName,
+              lastName,
+              email,
+              dateJoined: new Date().toISOString()
+            }
+          }
+        }
+      });
+    }
+  }).as('registerRequest');
+
+  // Vizitează pagina de înregistrare
+  cy.visit('/register');
+  
+  // Completează și trimite formularul
+  cy.get('input[id="firstName"]').type(firstName);
+  cy.get('input[id="lastName"]').type(lastName);
+  cy.get('input[id="email"]').type(email);
+  cy.get('input[id="password"]').type(password);
+  cy.get('input[id="confirmPassword"]').type(password);
+  cy.get('button').contains('Înregistrare').click();
+  
+  // Așteaptă finalizarea cererii
+  cy.wait('@registerRequest');
+  
+  // Verifică dacă înregistrarea a reușit
+  cy.url().should('include', '/');
 });
 
 // Comandă pentru a simula completarea unui formular de dispoziție

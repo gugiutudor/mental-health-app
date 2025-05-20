@@ -148,7 +148,8 @@ const Profile = () => {
 
   const formik = useFormik({
     initialValues: {
-      name: '',
+      firstName: '',
+      lastName: '',
       email: '',
       preferences: {
         notifications: true,
@@ -157,7 +158,8 @@ const Profile = () => {
       }
     },
     validationSchema: Yup.object({
-      name: Yup.string().required('Numele este obligatoriu'),
+      firstName: Yup.string().required('Prenumele este obligatoriu'),
+      lastName: Yup.string().required('Numele de familie este obligatoriu'),
       email: Yup.string().email('Adresa de email invalidă').required('Email-ul este obligatoriu'),
       preferences: Yup.object({
         notifications: Yup.boolean(),
@@ -187,7 +189,8 @@ const Profile = () => {
   React.useEffect(() => {
     if (data && data.me) {
       formik.setValues({
-        name: data.me.name || '',
+        firstName: data.me.firstName || '',
+        lastName: data.me.lastName || '',
         email: data.me.email || '',
         preferences: {
           notifications: data.me.preferences?.notifications !== undefined 
@@ -247,17 +250,32 @@ const Profile = () => {
             
             <Form onSubmit={formik.handleSubmit}>
               <FormGroup>
-                <Label htmlFor="name">Nume</Label>
+                <Label htmlFor="firstName">Prenume</Label>
                 <Input
-                  id="name"
-                  name="name"
+                  id="firstName"
+                  name="firstName"
                   type="text"
                   onChange={formik.handleChange}
                   onBlur={formik.handleBlur}
-                  value={formik.values.name}
+                  value={formik.values.firstName}
                 />
-                {formik.touched.name && formik.errors.name ? (
-                  <ErrorText>{formik.errors.name}</ErrorText>
+                {formik.touched.firstName && formik.errors.firstName ? (
+                  <ErrorText>{formik.errors.firstName}</ErrorText>
+                ) : null}
+              </FormGroup>
+              
+              <FormGroup>
+                <Label htmlFor="lastName">Nume de familie</Label>
+                <Input
+                  id="lastName"
+                  name="lastName"
+                  type="text"
+                  onChange={formik.handleChange}
+                  onBlur={formik.handleBlur}
+                  value={formik.values.lastName}
+                />
+                {formik.touched.lastName && formik.errors.lastName ? (
+                  <ErrorText>{formik.errors.lastName}</ErrorText>
                 ) : null}
               </FormGroup>
               

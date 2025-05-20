@@ -1,4 +1,4 @@
-// Test de integrare pentru API-ul GraphQL - Versiune corectată
+// server/__tests__/integration/graphql.test.js
 const { ApolloServer } = require('apollo-server-express');
 const mongoose = require('mongoose');
 const { MongoMemoryServer } = require('mongodb-memory-server');
@@ -41,7 +41,8 @@ describe('GraphQL API Integration', () => {
           token
           user {
             id
-            name
+            firstName
+            lastName
             email
           }
         }
@@ -50,7 +51,8 @@ describe('GraphQL API Integration', () => {
     
     const variables = {
       input: {
-        name: 'Integration Test User',
+        firstName: 'Integration',
+        lastName: 'Test User',
         email: 'integration@example.com',
         password: 'password123'
       }
@@ -62,7 +64,8 @@ describe('GraphQL API Integration', () => {
     
     const mockUser = {
       id: '1',
-      name: variables.input.name,
+      firstName: variables.input.firstName,
+      lastName: variables.input.lastName,
       email: variables.input.email
     };
     
@@ -96,7 +99,8 @@ describe('GraphQL API Integration', () => {
   it('should login an existing user', async () => {
     // Creează un utilizator în baza de date pentru test
     const userData = {
-      name: 'Login Test User',
+      firstName: 'Login',
+      lastName: 'Test User',
       email: 'login@example.com',
       password: 'password123'
     };
@@ -111,7 +115,8 @@ describe('GraphQL API Integration', () => {
           token
           user {
             id
-            name
+            firstName
+            lastName
             email
           }
         }
@@ -129,7 +134,8 @@ describe('GraphQL API Integration', () => {
     const originalFindOne = User.findOne;
     User.findOne = jest.fn().mockResolvedValue({
       id: '1',
-      name: userData.name,
+      firstName: userData.firstName,
+      lastName: userData.lastName,
       email: userData.email,
       comparePassword: jest.fn().mockResolvedValue(true),
       save: jest.fn().mockResolvedValue(true)
@@ -164,7 +170,8 @@ describe('GraphQL API Integration', () => {
       query {
         me {
           id
-          name
+          firstName
+          lastName
           email
         }
       }

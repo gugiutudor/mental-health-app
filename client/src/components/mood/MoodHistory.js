@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useQuery } from '@apollo/client';
 import { GET_MOOD_ENTRIES, GET_MOOD_STATISTICS } from '../../graphql/queries';
-import { format } from 'date-fns';
+import { format, isValid, parseISO } from 'date-fns';
 import { ro } from 'date-fns/locale';
 import MoodChart from './MoodChart';
 import styled from 'styled-components';
@@ -240,9 +240,25 @@ const MoodHistory = () => {
     }
   });
   
-  // Formatează data
+  // Formatează data cu validare
   const formatDate = (dateString) => {
-    return format(new Date(dateString), 'EEEE, d MMMM yyyy', { locale: ro });
+    try {
+      if (!dateString) return 'Dată necunoscută';
+      
+      // Parseaza string-ul de data
+      const parsedDate = parseISO(dateString);
+      
+      // Verifică dacă data rezultată este validă
+      if (!isValid(parsedDate)) {
+        return 'Dată invalidă';
+      }
+      
+      // Formatează data validă
+      return format(parsedDate, 'EEEE, d MMMM yyyy', { locale: ro });
+    } catch (error) {
+      console.error('Eroare la formatarea datei:', error);
+      return 'Dată invalidă';
+    }
   };
   
   // Obține eticheta factorului
@@ -331,7 +347,7 @@ const MoodHistory = () => {
             <ErrorContainer>
               <p>Eroare la încărcarea datelor: {entriesError.message}</p>
             </ErrorContainer>
-          ) : entriesData && entriesData.getMoodEntries.length > 0 ? (
+          ) : entriesData && entriesData.getMoodEntries && entriesData.getMoodEntries.length > 0 ? (
             <MoodChart entries={entriesData.getMoodEntries} />
           ) : (
             <p>Nu există înregistrări de dispoziție în acest interval.</p>
@@ -351,7 +367,7 @@ const MoodHistory = () => {
             <ErrorContainer>
               <p>Eroare la încărcarea datelor: {entriesError.message}</p>
             </ErrorContainer>
-          ) : entriesData && entriesData.getMoodEntries.length > 0 ? (
+          ) : entriesData && entriesData.getMoodEntries && entriesData.getMoodEntries.length > 0 ? (
             <EntryList>
               {entriesData.getMoodEntries.map(entry => (
                 <EntryCard key={entry.id}>
@@ -369,11 +385,13 @@ const MoodHistory = () => {
                   
                   {entry.factors && (
                     <EntryFactors>
-                      {Object.entries(entry.factors).filter(([_, value]) => value !== null).map(([factor, value]) => (
-                        <EntryFactor key={factor}>
-                          <FactorLabel>{getFactorLabel(factor)}:</FactorLabel>
-                          <FactorValue>{value}/5</FactorValue>
-                        </EntryFactor>
+                      {Object.entries(entry.factors || {})
+                        .filter(([key, value]) => key && value !== null && value !== undefined)
+                        .map(([factor, value]) => (
+                          <EntryFactor key={factor}>
+                            <FactorLabel>{getFactorLabel(factor)}:</FactorLabel>
+                            <FactorValue>{value}/5</FactorValue>
+                          </EntryFactor>
                       ))}
                     </EntryFactors>
                   )}
@@ -427,40 +445,40 @@ const MoodHistory = () => {
             <ErrorContainer>
               <p>Eroare la calcularea statisticilor: {statsError.message}</p>
             </ErrorContainer>
-          ) : statsData ? (
+          ) : statsData && statsData.getMoodStatistics ? (
             <>
               <StatisticsGrid>
                 <StatCard>
-                  <StatValue>{statsData.getMoodStatistics.averageMood.toFixed(1)}</StatValue>
+                  <StatValue>{(statsData.getMoodStatistics.averageMood || 0).toFixed(1)}</StatValue>
                   <StatLabel>Dispoziție medie</StatLabel>
                 </StatCard>
                 <StatCard>
                   <StatValue>
-                    {statsData.getMoodStatistics.moodTrend.length}
+                    {(statsData.getMoodStatistics.moodTrend || []).length}
                   </StatValue>
                   <StatLabel>Înregistrări</StatLabel>
                 </StatCard>
                 <StatCard>
                   <StatValue>
-                    {statsData.getMoodStatistics.moodTrend.length > 0 
-                      ? (statsData.getMoodStatistics.moodTrend[statsData.getMoodStatistics.moodTrend.length - 1] - 
-                        statsData.getMoodStatistics.moodTrend[0]).toFixed(1)
+                    {statsData.getMoodStatistics.moodTrend && statsData.getMoodStatistics.moodTrend.length > 0 
+                      ? ((statsData.getMoodStatistics.moodTrend[statsData.getMoodStatistics.moodTrend.length - 1] || 0) - 
+                        (statsData.getMoodStatistics.moodTrend[0] || 0)).toFixed(1)
                       : '0.0'}
                   </StatValue>
                   <StatLabel>Tendință</StatLabel>
                 </StatCard>
               </StatisticsGrid>
               
-              {statsData.getMoodStatistics.factorCorrelations.length > 0 && (
+              {statsData.getMoodStatistics.factorCorrelations && statsData.getMoodStatistics.factorCorrelations.length > 0 && (
                 <CorrelationContainer>
                   <h4>Corelații între factori și dispoziție</h4>
                   
                   {statsData.getMoodStatistics.factorCorrelations.map(correlation => (
                     <CorrelationItem key={correlation.factor}>
                       <CorrelationFactor>{getFactorLabel(correlation.factor)}</CorrelationFactor>
-                      <CorrelationBar value={correlation.correlation} />
-                      <CorrelationValue value={correlation.correlation}>
-                        {(correlation.correlation).toFixed(2)}
+                      <CorrelationBar value={correlation.correlation || 0} />
+                      <CorrelationValue value={correlation.correlation || 0}>
+                        {(correlation.correlation || 0).toFixed(2)}
                       </CorrelationValue>
                     </CorrelationItem>
                   ))}

@@ -7,7 +7,8 @@ export const REGISTER_USER = gql`
       token
       user {
         id
-        name
+        firstName
+        lastName
         email
         dateJoined
       }
@@ -21,7 +22,8 @@ export const LOGIN_USER = gql`
       token
       user {
         id
-        name
+        firstName
+        lastName
         email
         dateJoined
         preferences {
@@ -40,7 +42,8 @@ export const UPDATE_USER = gql`
   mutation UpdateUser($input: UpdateUserInput!) {
     updateUser(input: $input) {
       id
-      name
+      firstName
+      lastName
       email
       preferences {
         notifications
@@ -51,7 +54,7 @@ export const UPDATE_USER = gql`
   }
 `;
 
-// Mood mutations
+// Celelalte mutații rămân neschimbate
 export const CREATE_MOOD_ENTRY = gql`
   mutation CreateMoodEntry($input: CreateMoodEntryInput!) {
     createMoodEntry(input: $input) {
@@ -94,7 +97,6 @@ export const DELETE_MOOD_ENTRY = gql`
   }
 `;
 
-// Exercise mutations
 export const COMPLETE_EXERCISE = gql`
   mutation CompleteExercise($input: CompleteExerciseInput!) {
     completeExercise(input: $input) {
@@ -112,7 +114,6 @@ export const COMPLETE_EXERCISE = gql`
   }
 `;
 
-// Resource mutations
 export const CREATE_RESOURCE = gql`
   mutation CreateResource($input: CreateResourceInput!) {
     createResource(input: $input) {
@@ -136,11 +137,5 @@ export const UPDATE_RESOURCE = gql`
       url
       tags
     }
-  }
-`;
-
-export const DELETE_RESOURCE = gql`
-  mutation DeleteResource($id: ID!) {
-    deleteResource(id: $id)
   }
 `;
