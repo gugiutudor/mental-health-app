@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+// client/src/components/mood/MoodHistory.js - versiunea corectată
+import React, { useState, useEffect } from 'react';
 import { useQuery } from '@apollo/client';
 import { GET_MOOD_ENTRIES, GET_MOOD_STATISTICS } from '../../graphql/queries';
 import { format, isValid, parseISO } from 'date-fns';
@@ -270,18 +271,37 @@ const MoodHistory = () => {
   });
   
   // Obține înregistrările de dispoziție
-  const { loading: entriesLoading, error: entriesError, data: entriesData } = useQuery(GET_MOOD_ENTRIES, {
+  const { loading: entriesLoading, error: entriesError, data: entriesData, refetch: refetchEntries } = useQuery(GET_MOOD_ENTRIES, {
     variables: { limit: 30 },
     fetchPolicy: 'network-only' // Forțează refresh-ul datelor
   });
   
   // Obține statisticile de dispoziție
-  const { loading: statsLoading, error: statsError, data: statsData } = useQuery(GET_MOOD_STATISTICS, {
+  const { 
+    loading: statsLoading, 
+    error: statsError, 
+    data: statsData, 
+    refetch: refetchStats 
+  } = useQuery(GET_MOOD_STATISTICS, {
     variables: { 
       startDate: dateRange.startDate,
       endDate: dateRange.endDate
-    }
+    },
+    fetchPolicy: 'network-only'
   });
+
+  // Reîncarcă datele când se schimbă intervalul de date
+  useEffect(() => {
+    if (dateRange.startDate && dateRange.endDate) {
+      refetchStats({
+        startDate: dateRange.startDate,
+        endDate: dateRange.endDate
+      });
+      
+      // Refetch entries with same date range
+      refetchEntries();
+    }
+  }, [dateRange.startDate, dateRange.endDate, refetchStats, refetchEntries]);
   
   // Obține eticheta factorului
   const getFactorLabel = (factor) => {
@@ -315,21 +335,28 @@ const MoodHistory = () => {
     setDateRange({ ...dateRange, endDate: e.target.value });
   };
 
-  // Verifică și asigură-te că există datele necesare
-  const hasEntries = entriesData && entriesData.getMoodEntries && entriesData.getMoodEntries.length > 0;
-  
-  // Procesare date pentru a evita erori
-  const processedEntries = !hasEntries ? [] : entriesData.getMoodEntries.map(entry => {
-    // Asigură-te că toate proprietățile există și sunt în formatul corect
-    return {
-      id: entry.id || `entry-${Math.random()}`,
-      date: entry.date || new Date().toISOString(),
-      mood: typeof entry.mood === 'number' ? entry.mood : (parseInt(entry.mood) || 5),
-      notes: entry.notes || '',
-      factors: entry.factors || {},
-      tags: Array.isArray(entry.tags) ? entry.tags : []
-    };
-  });
+  // Filtreză înregistrările în funcție de intervalul de date selectat
+  const filteredEntries = React.useMemo(() => {
+    if (!entriesData || !entriesData.getMoodEntries) return [];
+
+    return entriesData.getMoodEntries.filter(entry => {
+      if (!entry || !entry.date) return false;
+      
+      // Convertește data înregistrării la un obiect Date
+      const entryDate = new Date(entry.date);
+      if (!isValid(entryDate)) return false;
+      
+      // Convertește limitele intervalului la obiecte Date
+      const startDateObj = new Date(dateRange.startDate);
+      const endDateObj = new Date(dateRange.endDate);
+      
+      // Ajustează data de sfârșit pentru a include întreaga zi
+      endDateObj.setHours(23, 59, 59, 999);
+      
+      // Verifică dacă data înregistrării este în interval
+      return entryDate >= startDateObj && entryDate <= endDateObj;
+    });
+  }, [entriesData, dateRange.startDate, dateRange.endDate]);
 
   return (
     <MoodHistoryContainer data-testid="mood-history">
@@ -354,29 +381,29 @@ const MoodHistory = () => {
         </TabButton>
       </TabsContainer>
       
+      <DateRangeContainer>
+        <div>
+          <label htmlFor="startDate">De la: </label>
+          <DateInput 
+            id="startDate" 
+            type="date" 
+            value={dateRange.startDate}
+            onChange={handleStartDateChange}
+          />
+        </div>
+        <div>
+          <label htmlFor="endDate">Până la: </label>
+          <DateInput 
+            id="endDate" 
+            type="date" 
+            value={dateRange.endDate}
+            onChange={handleEndDateChange}
+          />
+        </div>
+      </DateRangeContainer>
+      
       {activeTab === 'chart' && (
         <>
-          <DateRangeContainer>
-            <div>
-              <label htmlFor="startDate">De la: </label>
-              <DateInput 
-                id="startDate" 
-                type="date" 
-                value={dateRange.startDate}
-                onChange={handleStartDateChange}
-              />
-            </div>
-            <div>
-              <label htmlFor="endDate">Până la: </label>
-              <DateInput 
-                id="endDate" 
-                type="date" 
-                value={dateRange.endDate}
-                onChange={handleEndDateChange}
-              />
-            </div>
-          </DateRangeContainer>
-          
           {entriesLoading ? (
             <LoadingContainer>
               <p>Se încarcă datele...</p>
@@ -385,8 +412,8 @@ const MoodHistory = () => {
             <ErrorContainer>
               <p>Eroare la încărcarea datelor: {entriesError.message}</p>
             </ErrorContainer>
-          ) : processedEntries.length > 0 ? (
-            <MoodChart entries={processedEntries} />
+          ) : filteredEntries.length > 0 ? (
+            <MoodChart entries={filteredEntries} />
           ) : (
             <NoDataMessage>
               <p>Nu există înregistrări de dispoziție în acest interval.</p>
@@ -406,9 +433,9 @@ const MoodHistory = () => {
             <ErrorContainer>
               <p>Eroare la încărcarea datelor: {entriesError.message}</p>
             </ErrorContainer>
-          ) : processedEntries.length > 0 ? (
+          ) : filteredEntries.length > 0 ? (
             <EntryList>
-              {processedEntries.map(entry => (
+              {filteredEntries.map(entry => (
                 <EntryCard key={entry.id}>
                   <EntryHeader>
                     <EntryDate>{formatDate(entry.date)}</EntryDate>
@@ -447,7 +474,7 @@ const MoodHistory = () => {
             </EntryList>
           ) : (
             <NoDataMessage>
-              <p>Nu există înregistrări de dispoziție.</p>
+              <p>Nu există înregistrări de dispoziție în acest interval.</p>
               <p>Adaugă prima înregistrare folosind formularul de monitorizare a dispoziției.</p>
             </NoDataMessage>
           )}
@@ -456,27 +483,6 @@ const MoodHistory = () => {
       
       {activeTab === 'statistics' && (
         <>
-          <DateRangeContainer>
-            <div>
-              <label htmlFor="statsStartDate">De la: </label>
-              <DateInput 
-                id="statsStartDate" 
-                type="date" 
-                value={dateRange.startDate}
-                onChange={handleStartDateChange}
-              />
-            </div>
-            <div>
-              <label htmlFor="statsEndDate">Până la: </label>
-              <DateInput 
-                id="statsEndDate" 
-                type="date" 
-                value={dateRange.endDate}
-                onChange={handleEndDateChange}
-              />
-            </div>
-          </DateRangeContainer>
-          
           {statsLoading ? (
             <LoadingContainer>
               <p>Se calculează statisticile...</p>
@@ -494,13 +500,13 @@ const MoodHistory = () => {
                 </StatCard>
                 <StatCard>
                   <StatValue>
-                    {(statsData.getMoodStatistics.moodTrend || []).length}
+                    {filteredEntries.length}
                   </StatValue>
                   <StatLabel>Înregistrări</StatLabel>
                 </StatCard>
                 <StatCard>
                   <StatValue>
-                    {statsData.getMoodStatistics.moodTrend && statsData.getMoodStatistics.moodTrend.length > 0 
+                    {statsData.getMoodStatistics.moodTrend && statsData.getMoodStatistics.moodTrend.length > 1 
                       ? ((statsData.getMoodStatistics.moodTrend[statsData.getMoodStatistics.moodTrend.length - 1] || 0) - 
                         (statsData.getMoodStatistics.moodTrend[0] || 0)).toFixed(1)
                       : '0.0'}

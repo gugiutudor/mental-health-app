@@ -1,4 +1,4 @@
-// server/src/resolvers/mood.js - versiunea completă actualizată
+// server/src/resolvers/mood.js (implementare completă)
 const { AuthenticationError } = require('apollo-server-express');
 const { MoodEntry } = require('../models');
 
@@ -108,17 +108,25 @@ const moodResolvers = {
       try {
         const query = { userId: req.user.id };
         
+        // Adaugă filtrarea după interval de date
         if (startDate || endDate) {
           query.date = {};
-          if (startDate) query.date.$gte = new Date(startDate);
-          if (endDate) query.date.$lte = new Date(endDate);
+          if (startDate) {
+            const startDateObj = new Date(startDate);
+            startDateObj.setHours(0, 0, 0, 0);
+            query.date.$gte = startDateObj;
+          }
+          if (endDate) {
+            const endDateObj = new Date(endDate);
+            endDateObj.setHours(23, 59, 59, 999);
+            query.date.$lte = endDateObj;
+          }
         }
         
-        // Obține toate intrările care corespund interogării
-        // Folosește await direct pe find() pentru compatibilitate cu testele
-        const entries = await MoodEntry.find(query);
+        // Obține toate intrările care corespund interogării, sortate cronologic
+        const entries = await MoodEntry.find(query).sort({ date: 1 });
         
-        if (!entries || !Array.isArray(entries) || entries.length === 0) {
+        if (!entries || entries.length === 0) {
           return {
             averageMood: 0,
             moodTrend: [],
@@ -126,61 +134,42 @@ const moodResolvers = {
           };
         }
         
-        // Sortăm manual dacă nu avem acces la metodele de lanț
-        const sortedEntries = [...entries].sort((a, b) => {
-          const dateA = a.date ? new Date(a.date) : new Date(0);
-          const dateB = b.date ? new Date(b.date) : new Date(0);
-          return dateA - dateB;
-        });
-        
-        // Calculează media dispozițiilor, asigurând că avem numere valide
-        const validMoods = sortedEntries
-          .map(entry => Number(entry.mood))
-          .filter(mood => !isNaN(mood));
-        
-        const totalMood = validMoods.reduce((sum, mood) => sum + mood, 0);
-        const averageMood = validMoods.length > 0 ? totalMood / validMoods.length : 0;
+        // Calculează media dispozițiilor
+        const validMoods = entries.map(entry => Number(entry.mood)).filter(mood => !isNaN(mood));
+        const averageMood = validMoods.length > 0 ? validMoods.reduce((sum, mood) => sum + mood, 0) / validMoods.length : 0;
         
         // Creează tendința dispozițiilor (array de valori)
-        const moodTrend = sortedEntries.map(entry => {
+        const moodTrend = entries.map(entry => {
           const mood = Number(entry.mood);
-          return isNaN(mood) ? 5 : mood;  // Folosește 5 ca valoare implicită
+          return isNaN(mood) ? 5 : mood;
         });
         
         // Calculează corelațiile factorilor
         const factorCorrelations = [];
         const factorTypes = ['sleep', 'stress', 'activity', 'social'];
         
-        factorTypes.forEach(factor => {
+        for (const factor of factorTypes) {
           // Filtrează entrările care au acest factor definit
-          const entriesWithFactor = sortedEntries.filter(entry => 
+          const entriesWithFactor = entries.filter(entry => 
             entry.factors && 
             entry.factors[factor] !== undefined && 
             entry.factors[factor] !== null
           );
           
-          if (entriesWithFactor.length >= 3) { // Avem nevoie de minim 3 intrări pentru o corelație semnificativă
-            // Convertește valorile la numere
+          if (entriesWithFactor.length >= 3) {
             const factorValues = entriesWithFactor.map(e => Number(e.factors[factor]));
             const moodValues = entriesWithFactor.map(e => Number(e.mood));
             
-            // Calculează corelația doar dacă avem valori valide
-            const validFactorValues = factorValues.filter(val => !isNaN(val));
-            const validMoodValues = moodValues.filter(val => !isNaN(val));
+            const correlation = calculateCorrelation(factorValues, moodValues);
             
-            if (validFactorValues.length === validMoodValues.length && validFactorValues.length >= 3) {
-              const correlation = calculateCorrelation(validFactorValues, validMoodValues);
-              
-              // Verificăm că avem o valoare validă de corelație
-              if (!isNaN(correlation)) {
-                factorCorrelations.push({
-                  factor,
-                  correlation
-                });
-              }
+            if (!isNaN(correlation)) {
+              factorCorrelations.push({
+                factor,
+                correlation
+              });
             }
           }
-        });
+        }
         
         return {
           averageMood,
