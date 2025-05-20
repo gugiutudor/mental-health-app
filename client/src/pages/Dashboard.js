@@ -1,7 +1,6 @@
 import React from 'react';
 import { useQuery } from '@apollo/client';
 import { GET_MOOD_ENTRIES, GET_RECOMMENDED_EXERCISES } from '../graphql/queries';
-import MoodChart from '../components/mood/MoodChart';
 import MoodTracker from '../components/mood/MoodTracker';
 import MoodHistory from '../components/mood/MoodHistory';
 import RecommendedExercises from '../components/exercises/RecommendedExercises';
@@ -50,12 +49,6 @@ const Card = styled.div`
   padding: 1.5rem;
 `;
 
-const MoodSummaryCard = styled(Card)`
-  @media (min-width: 768px) {
-    grid-column: 1 / -1;
-  }
-`;
-
 const DailyTip = styled.div`
   background-color: #ebf8ff;
   border-left: 4px solid #4299e1;
@@ -92,27 +85,14 @@ const Dashboard = () => {
       
       <DashboardGrid>
         <LeftColumn>
-          <MoodSummaryCard>
-            <SectionHeading>Dispoziția ta</SectionHeading>
-            {moodLoading ? (
-              <p>Se încarcă datele...</p>
-            ) : moodError ? (
-              <p>Eroare la încărcarea datelor: {moodError.message}</p>
-            ) : moodData && moodData.getMoodEntries.length > 0 ? (
-              <MoodChart entries={moodData.getMoodEntries} />
-            ) : (
-              <p>Nu există înregistrări de dispoziție. Adaugă prima ta înregistrare folosind formularul de mai jos.</p>
-            )}
-          </MoodSummaryCard>
+          <Card>
+            <SectionHeading>Istoricul dispoziției</SectionHeading>
+            <MoodHistory />
+          </Card>
           
           <Card>
             <SectionHeading>Adaugă dispoziția curentă</SectionHeading>
             <MoodTracker />
-          </Card>
-          
-          <Card>
-            <SectionHeading>Istoricul dispoziției</SectionHeading>
-            <MoodHistory />
           </Card>
         </LeftColumn>
         

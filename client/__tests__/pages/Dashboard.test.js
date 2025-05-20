@@ -26,9 +26,9 @@ jest.mock('react-router-dom', () => {
   };
 });
 
-// Mock pentru componente importate
-jest.mock('../../src/components/mood/MoodChart', () => () => <div data-testid="mood-chart">Mood Chart</div>);
+// Mock pentru componente importate - actualizat pentru a include MoodHistory în loc de MoodChart
 jest.mock('../../src/components/mood/MoodHistory', () => () => <div data-testid="mood-history">Mood History</div>);
+jest.mock('../../src/components/mood/MoodTracker', () => () => <div data-testid="mood-tracker">Mood Tracker</div>);
 jest.mock('../../src/components/exercises/RecommendedExercises', () => () => <div data-testid="recommended-exercises">Recommended Exercises</div>);
 jest.mock('../../src/components/resources/RecommendedResources', () => () => <div data-testid="recommended-resources">Recommended Resources</div>);
 
@@ -176,10 +176,9 @@ describe('Dashboard Page', () => {
       </MockedProvider>
     );
     
-    // Verificăm titlurile secțiunilor (care sunt statice)
-    expect(screen.getByText(/dispoziția ta/i)).toBeInTheDocument();
-    expect(screen.getByText(/adaugă dispoziția curentă/i)).toBeInTheDocument();
+    // Verificăm titlurile secțiunilor actualizate
     expect(screen.getByText(/istoricul dispoziției/i)).toBeInTheDocument();
+    expect(screen.getByText(/adaugă dispoziția curentă/i)).toBeInTheDocument();
     expect(screen.getByText(/sfatul zilei/i)).toBeInTheDocument();
   });
 
@@ -204,7 +203,7 @@ describe('Dashboard Page', () => {
     mockRandom.mockRestore();
   });
 
-  it('has mood tracking form with correct elements', () => {
+  it('renders MoodHistory component', () => {
     render(
       <MockedProvider mocks={mocks} addTypename={false}>
         <MemoryRouter>
@@ -215,10 +214,22 @@ describe('Dashboard Page', () => {
       </MockedProvider>
     );
     
-    // Verificăm elementele formularului de tracking
-    expect(screen.getByText(/cum te simți astăzi/i)).toBeInTheDocument();
-    expect(screen.getByText(/note \(opțional\)/i)).toBeInTheDocument();
-    expect(screen.getByText(/factori de influență/i)).toBeInTheDocument();
-    expect(screen.getByText(/salvează dispoziția/i)).toBeInTheDocument();
+    // Verifică afișarea componentei MoodHistory
+    expect(screen.getByTestId('mood-history')).toBeInTheDocument();
+  });
+
+  it('renders MoodTracker component', () => {
+    render(
+      <MockedProvider mocks={mocks} addTypename={false}>
+        <MemoryRouter>
+          <AuthProvider>
+            <Dashboard />
+          </AuthProvider>
+        </MemoryRouter>
+      </MockedProvider>
+    );
+    
+    // Verifică afișarea componentei MoodTracker
+    expect(screen.getByTestId('mood-tracker')).toBeInTheDocument();
   });
 });

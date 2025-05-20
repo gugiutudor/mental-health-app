@@ -286,7 +286,7 @@ const MoodTracker = () => {
   };
 
   return (
-    <>
+    <div data-testid="mood-tracker">
       {success && (
         <SuccessMessage>
           Înregistrarea dispoziției a fost salvată cu succes!
@@ -452,7 +452,7 @@ const MoodTracker = () => {
           {loading ? 'Se salvează...' : 'Salvează dispoziția'}
         </SubmitButton>
       </Form>
-    </>
+    </div>
   );
 };
 

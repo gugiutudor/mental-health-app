@@ -7,30 +7,23 @@ import MoodChart from './MoodChart';
 import styled from 'styled-components';
 
 const MoodHistoryContainer = styled.div`
-  margin-bottom: 2rem;
-`;
-
-const Card = styled.div`
-  background-color: white;
-  border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  padding: 1.5rem;
-  margin-bottom: 1.5rem;
+  margin-bottom: 1rem;
 `;
 
 const TabsContainer = styled.div`
   display: flex;
-  margin-bottom: 1.5rem;
+  margin-bottom: 1rem;
   border-bottom: 1px solid #e2e8f0;
 `;
 
 const TabButton = styled.button`
-  padding: 0.75rem 1.25rem;
+  padding: 0.5rem 1rem;
   background: none;
   border: none;
   border-bottom: 2px solid ${props => props.active ? '#4c51bf' : 'transparent'};
   color: ${props => props.active ? '#4c51bf' : '#4a5568'};
   font-weight: ${props => props.active ? '600' : '400'};
+  font-size: 0.9rem;
   cursor: pointer;
   transition: all 0.2s;
 
@@ -41,28 +34,31 @@ const TabButton = styled.button`
 
 const LoadingContainer = styled.div`
   text-align: center;
-  padding: 2rem;
+  padding: 1rem;
   color: #4a5568;
 `;
 
 const ErrorContainer = styled.div`
   background-color: #fed7d7;
   border-radius: 8px;
-  padding: 1rem;
+  padding: 0.75rem;
   margin-bottom: 1rem;
   color: #c53030;
+  font-size: 0.9rem;
 `;
 
 const EntryList = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 1rem;
+  gap: 0.75rem;
+  max-height: 400px;
+  overflow-y: auto;
 `;
 
 const EntryCard = styled.div`
   border: 1px solid #e2e8f0;
   border-radius: 8px;
-  padding: 1rem;
+  padding: 0.75rem;
   transition: transform 0.2s, box-shadow 0.2s;
 
   &:hover {
@@ -139,37 +135,37 @@ const StatisticsGrid = styled.div`
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 1rem;
-  margin-bottom: 1.5rem;
+  margin-bottom: 1rem;
 `;
 
 const StatCard = styled.div`
   text-align: center;
-  padding: 1rem;
+  padding: 0.75rem;
   border-radius: 8px;
   background-color: #ebf4ff;
 `;
 
 const StatValue = styled.div`
-  font-size: 1.5rem;
+  font-size: 1.25rem;
   font-weight: 700;
   color: #4c51bf;
 `;
 
 const StatLabel = styled.div`
-  font-size: 0.875rem;
+  font-size: 0.8rem;
   color: #4a5568;
   margin-top: 0.25rem;
 `;
 
 const CorrelationContainer = styled.div`
-  margin-top: 1.5rem;
+  margin-top: 1rem;
 `;
 
 const CorrelationItem = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 0.75rem 0;
+  padding: 0.5rem 0;
   border-bottom: 1px solid #e2e8f0;
 
   &:last-child {
@@ -179,6 +175,7 @@ const CorrelationItem = styled.div`
 
 const CorrelationFactor = styled.span`
   font-weight: 500;
+  font-size: 0.875rem;
 `;
 
 const CorrelationBar = styled.div`
@@ -202,30 +199,34 @@ const CorrelationBar = styled.div`
 `;
 
 const CorrelationValue = styled.span`
-  font-size: 0.875rem;
+  font-size: 0.8rem;
   font-weight: 600;
   color: ${props => props.value >= 0 ? '#48bb78' : '#f56565'};
 `;
 
 const DateRangeContainer = styled.div`
   display: flex;
-  gap: 1rem;
-  margin-bottom: 1.5rem;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
+  align-items: center;
 `;
 
 const DateInput = styled.input`
-  padding: 0.5rem;
+  padding: 0.4rem;
   border: 1px solid #e2e8f0;
   border-radius: 4px;
-  font-size: 0.875rem;
+  font-size: 0.85rem;
+  width: 125px;
 `;
 
 const NoDataMessage = styled.div`
   text-align: center;
-  padding: 2rem;
+  padding: 1.5rem;
   color: #718096;
   background-color: #f7fafc;
   border-radius: 8px;
+  font-size: 0.9rem;
 `;
 
 // Funcție îmbunătățită pentru formatarea datei
@@ -264,7 +265,7 @@ function formatDate(dateString) {
 const MoodHistory = () => {
   const [activeTab, setActiveTab] = useState('chart');
   const [dateRange, setDateRange] = useState({
-    startDate: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0], // 30 zile în urmă
+    startDate: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0], // 7 zile în urmă
     endDate: new Date().toISOString().split('T')[0] // data curentă
   });
   
@@ -279,8 +280,7 @@ const MoodHistory = () => {
     variables: { 
       startDate: dateRange.startDate,
       endDate: dateRange.endDate
-    },
-    fetchPolicy: 'network-only'
+    }
   });
   
   // Obține eticheta factorului
@@ -321,27 +321,18 @@ const MoodHistory = () => {
   // Procesare date pentru a evita erori
   const processedEntries = !hasEntries ? [] : entriesData.getMoodEntries.map(entry => {
     // Asigură-te că toate proprietățile există și sunt în formatul corect
-    // Elimină __typename din factori dacă există
-    let cleanFactors = {};
-    if (entry.factors) {
-      cleanFactors = { ...entry.factors };
-      if ('__typename' in cleanFactors) {
-        delete cleanFactors.__typename;
-      }
-    }
-    
     return {
       id: entry.id || `entry-${Math.random()}`,
       date: entry.date || new Date().toISOString(),
       mood: typeof entry.mood === 'number' ? entry.mood : (parseInt(entry.mood) || 5),
       notes: entry.notes || '',
-      factors: cleanFactors,
+      factors: entry.factors || {},
       tags: Array.isArray(entry.tags) ? entry.tags : []
     };
   });
 
   return (
-    <MoodHistoryContainer>
+    <MoodHistoryContainer data-testid="mood-history">
       <TabsContainer>
         <TabButton 
           active={activeTab === 'chart'} 
@@ -364,9 +355,7 @@ const MoodHistory = () => {
       </TabsContainer>
       
       {activeTab === 'chart' && (
-        <Card>
-          <h3>Evoluția dispoziției tale</h3>
-          
+        <>
           <DateRangeContainer>
             <div>
               <label htmlFor="startDate">De la: </label>
@@ -404,13 +393,11 @@ const MoodHistory = () => {
               <p>Adaugă prima înregistrare folosind formularul de monitorizare a dispoziției.</p>
             </NoDataMessage>
           )}
-        </Card>
+        </>
       )}
       
       {activeTab === 'entries' && (
-        <Card>
-          <h3>Istoricul înregistrărilor</h3>
-          
+        <>
           {entriesLoading ? (
             <LoadingContainer>
               <p>Se încarcă datele...</p>
@@ -438,7 +425,7 @@ const MoodHistory = () => {
                   {entry.factors && (
                     <EntryFactors>
                       {Object.entries(entry.factors)
-                        .filter(([key, value]) => key !== '__typename' && value !== null && value !== undefined)
+                        .filter(([key, value]) => key && value !== null && value !== undefined)
                         .map(([factor, value]) => (
                           <EntryFactor key={factor}>
                             <FactorLabel>{getFactorLabel(factor)}:</FactorLabel>
@@ -464,13 +451,11 @@ const MoodHistory = () => {
               <p>Adaugă prima înregistrare folosind formularul de monitorizare a dispoziției.</p>
             </NoDataMessage>
           )}
-        </Card>
+        </>
       )}
       
       {activeTab === 'statistics' && (
-        <Card>
-          <h3>Statistici și Analiză</h3>
-          
+        <>
           <DateRangeContainer>
             <div>
               <label htmlFor="statsStartDate">De la: </label>
@@ -551,7 +536,7 @@ const MoodHistory = () => {
               <p>Adaugă mai multe înregistrări pentru a vedea tendințe și corelații.</p>
             </NoDataMessage>
           )}
-        </Card>
+        </>
       )}
     </MoodHistoryContainer>
   );
