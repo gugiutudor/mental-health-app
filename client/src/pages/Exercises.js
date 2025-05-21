@@ -7,19 +7,41 @@ import styled from 'styled-components';
 const ExercisesContainer = styled.div`
   max-width: 1200px;
   margin: 2rem auto;
-  padding: 0 1rem;
+  padding: 0 1.5rem;
+`;
+
+const PageHeader = styled.div`
+  margin-bottom: 2rem;
+  
+  h1 {
+    color: var(--primary-color);
+    font-size: 2rem;
+    font-weight: 700;
+    margin-bottom: 0.75rem;
+  }
+  
+  p {
+    color: #718096;
+    font-size: 1.1rem;
+    line-height: 1.5;
+  }
 `;
 
 const FiltersSection = styled.div`
   margin-bottom: 2rem;
-  background-color: white;
+  background-color: var(--card-bg);
   padding: 1.5rem;
-  border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  transition: all 0.3s ease;
+  
+  &:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  }
 `;
 
 const FilterGroup = styled.div`
-  margin-bottom: 1rem;
+  margin-bottom: 1.25rem;
 
   &:last-child {
     margin-bottom: 0;
@@ -27,65 +49,78 @@ const FilterGroup = styled.div`
 `;
 
 const FilterLabel = styled.h3`
-  margin-bottom: 0.5rem;
-  font-size: 1rem;
+  margin-bottom: 0.75rem;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--primary-color);
 `;
 
 const CategoryButtons = styled.div`
   display: flex;
   flex-wrap: wrap;
-  gap: 0.5rem;
+  gap: 0.75rem;
 `;
 
 const CategoryButton = styled.button`
-  padding: 0.5rem 1rem;
+  padding: 0.6rem 1.2rem;
   border-radius: 9999px;
-  border: 1px solid #4c51bf;
-  background-color: ${props => props.active ? '#4c51bf' : 'transparent'};
-  color: ${props => props.active ? 'white' : '#4c51bf'};
-  font-size: 0.875rem;
+  border: 1px solid var(--primary-color);
+  background-color: ${props => props.active ? 'var(--primary-color)' : 'transparent'};
+  color: ${props => props.active ? 'white' : 'var(--primary-color)'};
+  font-size: 0.95rem;
+  font-weight: 500;
   cursor: pointer;
   transition: all 0.2s;
+  box-shadow: ${props => props.active ? '0 2px 4px rgba(0, 0, 0, 0.1)' : 'none'};
 
   &:hover {
-    background-color: ${props => props.active ? '#434190' : '#edf2f7'};
+    background-color: ${props => props.active ? 'var(--primary-hover)' : 'rgba(79, 70, 229, 0.1)'};
+    transform: translateY(-1px);
   }
 `;
 
 const GridContainer = styled.div`
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  gap: 1.5rem;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 1.75rem;
 `;
 
 const ExerciseCard = styled.div`
-  background-color: white;
-  border-radius: 8px;
+  background-color: var(--card-bg);
+  border-radius: 12px;
   overflow: hidden;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  transition: transform 0.2s, box-shadow 0.2s;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  transition: transform 0.3s, box-shadow 0.3s;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
 
   &:hover {
-    transform: translateY(-4px);
+    transform: translateY(-5px);
     box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
   }
 `;
 
 const ExerciseCardContent = styled.div`
   padding: 1.5rem;
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
 `;
 
 const ExerciseTitle = styled.h3`
   font-size: 1.25rem;
-  margin-bottom: 0.5rem;
-  color: #2d3748;
+  margin-bottom: 0.75rem;
+  color: var(--primary-color);
+  font-weight: 700;
 `;
 
 const ExerciseDescription = styled.p`
-  font-size: 0.875rem;
+  font-size: 0.95rem;
   color: #4a5568;
   margin-bottom: 1rem;
-  line-height: 1.5;
+  line-height: 1.6;
+  flex-grow: 1;
 `;
 
 const ExerciseDetails = styled.div`
@@ -98,65 +133,86 @@ const ExerciseDetails = styled.div`
 const ExerciseDetail = styled.span`
   display: flex;
   align-items: center;
-  gap: 0.25rem;
-  font-size: 0.875rem;
+  gap: 0.35rem;
+  font-size: 0.9rem;
   color: #718096;
 `;
 
 const ExerciseTagContainer = styled.div`
   display: flex;
   flex-wrap: wrap;
-  gap: 0.5rem;
-  margin-top: 0.5rem;
+  gap: 0.6rem;
+  margin-top: 0.75rem;
 `;
 
 const ExerciseTag = styled.span`
   background-color: #e9d8fd;
   color: #6b46c1;
-  font-size: 0.75rem;
-  padding: 0.25rem 0.5rem;
+  font-size: 0.85rem;
+  padding: 0.35rem 0.7rem;
   border-radius: 9999px;
+  font-weight: 500;
 `;
 
 const ViewButton = styled(Link)`
   display: inline-block;
-  background-color: #4c51bf;
+  background-color: var(--primary-color);
   color: white;
-  font-size: 0.875rem;
-  font-weight: 500;
-  padding: 0.5rem 1rem;
-  border-radius: 4px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  padding: 0.75rem 1.25rem;
+  border-radius: 8px;
   text-decoration: none;
-  margin-top: 0.75rem;
-  transition: background-color 0.2s;
+  margin-top: 1.25rem;
+  transition: all 0.2s;
+  text-align: center;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 
   &:hover {
-    background-color: #434190;
+    background-color: var(--primary-hover);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.15);
+    transform: translateY(-2px);
     text-decoration: none;
+    color: white;
   }
 `;
 
 const LoadingContainer = styled.div`
   text-align: center;
-  padding: 2rem;
-  font-size: 1.125rem;
+  padding: 3rem;
+  font-size: 1.25rem;
   color: #4a5568;
+  background-color: var(--card-bg);
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
 `;
 
 const ErrorContainer = styled.div`
   background-color: #fed7d7;
-  border-radius: 8px;
-  padding: 1rem;
+  border-radius: 12px;
+  padding: 1.5rem;
   margin-bottom: 1.5rem;
   color: #c53030;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
 `;
 
 const NoResultsContainer = styled.div`
   text-align: center;
-  padding: 2rem;
-  background-color: white;
-  border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  padding: 3rem 1.5rem;
+  background-color: var(--card-bg);
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  
+  h3 {
+    color: var(--primary-color);
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+  }
+  
+  p {
+    color: #718096;
+    font-size: 1.1rem;
+  }
 `;
 
 const Exercises = () => {
@@ -200,7 +256,10 @@ const Exercises = () => {
 
   return (
     <ExercisesContainer>
-      <h1 style={{ marginBottom: '1.5rem' }}>Exerciții pentru sănătate mentală</h1>
+      <PageHeader>
+        <h1>Exerciții pentru sănătate mentală</h1>
+        <p>Descoperă exerciții personalizate care te ajută să-ți îmbunătățești starea de spirit și echilibrul mental.</p>
+      </PageHeader>
       
       <FiltersSection>
         <FilterGroup>
@@ -262,6 +321,7 @@ const Exercises = () => {
         </GridContainer>
       ) : (
         <NoResultsContainer>
+          <h3>Nu am găsit exerciții</h3>
           <p>Nu există exerciții disponibile pentru filtrele selectate.</p>
         </NoResultsContainer>
       )}

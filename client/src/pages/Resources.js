@@ -6,19 +6,41 @@ import styled from 'styled-components';
 const ResourcesContainer = styled.div`
   max-width: 1200px;
   margin: 2rem auto;
-  padding: 0 1rem;
+  padding: 0 1.5rem;
+`;
+
+const PageHeader = styled.div`
+  margin-bottom: 2rem;
+  
+  h1 {
+    color: var(--primary-color);
+    font-size: 2rem;
+    font-weight: 700;
+    margin-bottom: 0.75rem;
+  }
+  
+  p {
+    color: #718096;
+    font-size: 1.1rem;
+    line-height: 1.5;
+  }
 `;
 
 const FiltersSection = styled.div`
   margin-bottom: 2rem;
-  background-color: white;
+  background-color: var(--card-bg);
   padding: 1.5rem;
-  border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  transition: all 0.3s ease;
+  
+  &:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  }
 `;
 
 const FilterGroup = styled.div`
-  margin-bottom: 1rem;
+  margin-bottom: 1.25rem;
 
   &:last-child {
     margin-bottom: 0;
@@ -26,80 +48,94 @@ const FilterGroup = styled.div`
 `;
 
 const FilterLabel = styled.h3`
-  margin-bottom: 0.5rem;
-  font-size: 1rem;
+  margin-bottom: 0.75rem;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--primary-color);
 `;
 
 const TypeButtons = styled.div`
   display: flex;
   flex-wrap: wrap;
-  gap: 0.5rem;
+  gap: 0.75rem;
 `;
 
 const TypeButton = styled.button`
-  padding: 0.5rem 1rem;
+  padding: 0.6rem 1.2rem;
   border-radius: 9999px;
-  border: 1px solid #4c51bf;
-  background-color: ${props => props.active ? '#4c51bf' : 'transparent'};
-  color: ${props => props.active ? 'white' : '#4c51bf'};
-  font-size: 0.875rem;
+  border: 1px solid var(--primary-color);
+  background-color: ${props => props.active ? 'var(--primary-color)' : 'transparent'};
+  color: ${props => props.active ? 'white' : 'var(--primary-color)'};
+  font-size: 0.95rem;
+  font-weight: 500;
   cursor: pointer;
   transition: all 0.2s;
+  box-shadow: ${props => props.active ? '0 2px 4px rgba(0, 0, 0, 0.1)' : 'none'};
 
   &:hover {
-    background-color: ${props => props.active ? '#434190' : '#edf2f7'};
+    background-color: ${props => props.active ? 'var(--primary-hover)' : 'rgba(79, 70, 229, 0.1)'};
+    transform: translateY(-1px);
   }
 `;
 
 const TagsContainer = styled.div`
   display: flex;
   flex-wrap: wrap;
-  gap: 0.5rem;
-  margin-top: 0.5rem;
+  gap: 0.6rem;
+  margin-top: 0.75rem;
 `;
 
 const TagButton = styled.button`
-  padding: 0.25rem 0.75rem;
+  padding: 0.4rem 0.8rem;
   border-radius: 9999px;
-  border: 1px solid #805ad5;
-  background-color: ${props => props.active ? '#805ad5' : 'transparent'};
-  color: ${props => props.active ? 'white' : '#805ad5'};
-  font-size: 0.75rem;
+  border: 1px solid var(--accent-color);
+  background-color: ${props => props.active ? 'var(--accent-color)' : 'transparent'};
+  color: ${props => props.active ? 'white' : 'var(--accent-color)'};
+  font-size: 0.85rem;
+  font-weight: 500;
   cursor: pointer;
   transition: all 0.2s;
 
   &:hover {
-    background-color: ${props => props.active ? '#6b46c1' : '#f7fafc'};
+    background-color: ${props => props.active ? 'var(--accent-hover)' : 'rgba(126, 87, 194, 0.1)'};
+    transform: translateY(-1px);
   }
 `;
 
 const SearchInput = styled.input`
   width: 100%;
-  padding: 0.75rem;
+  padding: 0.85rem 1rem;
   border: 1px solid #e2e8f0;
-  border-radius: 4px;
+  border-radius: 8px;
   font-size: 1rem;
   margin-top: 0.5rem;
+  transition: all 0.2s;
+  
+  &:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.2);
+  }
 `;
 
 const GridContainer = styled.div`
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  gap: 1.5rem;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 1.75rem;
 `;
 
 const ResourceCard = styled.div`
-  background-color: white;
-  border-radius: 8px;
+  background-color: var(--card-bg);
+  border-radius: 12px;
   overflow: hidden;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  transition: transform 0.2s, box-shadow 0.2s;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  transition: transform 0.3s, box-shadow 0.3s;
   height: 100%;
   display: flex;
   flex-direction: column;
 
   &:hover {
-    transform: translateY(-4px);
+    transform: translateY(-5px);
     box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
   }
 `;
@@ -111,85 +147,114 @@ const ResourceCardContent = styled.div`
   flex-direction: column;
 `;
 
+const ResourceHeader = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+`;
+
+const ResourceTypeIcon = styled.span`
+  width: 2.5rem;
+  height: 2.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #e9d8fd;
+  color: #6b46c1;
+  border-radius: 50%;
+  font-size: 1.25rem;
+`;
+
 const ResourceTitle = styled.h3`
   font-size: 1.25rem;
-  margin-bottom: 0.5rem;
-  color: #2d3748;
+  color: var(--primary-color);
+  margin: 0;
+  font-weight: 700;
 `;
 
 const ResourceDescription = styled.p`
-  font-size: 0.875rem;
+  font-size: 0.95rem;
   color: #4a5568;
-  margin-bottom: 1rem;
-  line-height: 1.5;
+  margin: 0.75rem 0;
+  line-height: 1.6;
   flex-grow: 1;
 `;
 
 const ResourceTagContainer = styled.div`
   display: flex;
   flex-wrap: wrap;
-  gap: 0.5rem;
-  margin-top: 0.5rem;
+  gap: 0.6rem;
+  margin-top: 0.75rem;
 `;
 
 const ResourceTag = styled.span`
   background-color: #feebc8;
   color: #c05621;
-  font-size: 0.75rem;
-  padding: 0.25rem 0.5rem;
+  font-size: 0.85rem;
+  padding: 0.35rem 0.7rem;
   border-radius: 9999px;
-`;
-
-const ResourceTypeTag = styled.span`
-  background-color: #e9d8fd;
-  color: #6b46c1;
-  font-size: 0.75rem;
-  padding: 0.25rem 0.5rem;
-  border-radius: 9999px;
-  margin-right: 0.5rem;
+  font-weight: 500;
 `;
 
 const ViewButton = styled.a`
-  display: inline-block;
-  background-color: #4c51bf;
-  color: white;
-  font-size: 0.875rem;
-  font-weight: 500;
-  padding: 0.5rem 1rem;
-  border-radius: 4px;
-  text-decoration: none;
-  margin-top: 1rem;
-  transition: background-color 0.2s;
+  display: block;
   text-align: center;
+  background-color: var(--primary-color);
+  color: white;
+  font-size: 0.95rem;
+  font-weight: 600;
+  padding: 0.75rem;
+  border-radius: 0 0 8px 8px;
+  text-decoration: none;
+  transition: all 0.2s;
+  margin-top: auto;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 
   &:hover {
-    background-color: #434190;
+    background-color: var(--primary-hover);
     color: white;
     text-decoration: none;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.15);
   }
 `;
 
 const LoadingContainer = styled.div`
   text-align: center;
-  padding: 2rem;
-  font-size: 1.125rem;
+  padding: 3rem;
+  font-size: 1.25rem;
   color: #4a5568;
+  background-color: var(--card-bg);
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
 `;
 
 const ErrorContainer = styled.div`
   background-color: #fed7d7;
-  border-radius: 8px;
-  padding: 1rem;
+  border-radius: 12px;
+  padding: 1.5rem;
   margin-bottom: 1.5rem;
   color: #c53030;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
 `;
 
 const NoResultsContainer = styled.div`
   text-align: center;
-  padding: 2rem;
-  background-color: white;
-  border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  padding: 3rem 1.5rem;
+  background-color: var(--card-bg);
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  
+  h3 {
+    color: var(--primary-color);
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+  }
+  
+  p {
+    color: #718096;
+    font-size: 1.1rem;
+  }
 `;
 
 const Resources = () => {
@@ -256,10 +321,31 @@ const Resources = () => {
       );
     });
   }, [data, searchQuery]);
+  
+  // Obține icoanele pentru tipurile de resurse
+  const getResourceIcon = (type) => {
+    switch (type) {
+      case 'article':
+        return '📄';
+      case 'video':
+        return '🎬';
+      case 'audio':
+        return '🎧';
+      case 'book':
+        return '📚';
+      case 'infographic':
+        return '📊';
+      default:
+        return '📋';
+    }
+  };
 
   return (
     <ResourcesContainer>
-      <h1 style={{ marginBottom: '1.5rem' }}>Resurse pentru sănătate mentală</h1>
+      <PageHeader>
+        <h1>Resurse pentru sănătate mentală</h1>
+        <p>Explorează resurse valoare care te ajută să înțelegi și să-ți îmbunătățești starea emoțională.</p>
+      </PageHeader>
       
       <FiltersSection>
         <FilterGroup>
@@ -317,43 +403,44 @@ const Resources = () => {
           {filteredResources.map(resource => (
             <ResourceCard key={resource.id}>
               <ResourceCardContent>
-                <ResourceTitle>{resource.title}</ResourceTitle>
+                <ResourceHeader>
+                  <ResourceTypeIcon>
+                    {getResourceIcon(resource.type)}
+                  </ResourceTypeIcon>
+                  <ResourceTitle>{resource.title}</ResourceTitle>
+                </ResourceHeader>
+                
                 <ResourceDescription>
                   {resource.description && resource.description.length > 120
                     ? `${resource.description.substring(0, 120)}...`
                     : resource.description}
                 </ResourceDescription>
                 
-                <div>
-                  <ResourceTypeTag>
-                    {resourceTypes.find(t => t.value === resource.type)?.label || resource.type}
-                  </ResourceTypeTag>
-                  
-                  {resource.tags && resource.tags.length > 0 && (
-                    <ResourceTagContainer>
-                      {resource.tags.slice(0, 3).map((tag, index) => (
-                        <ResourceTag key={index}>{tag}</ResourceTag>
-                      ))}
-                      {resource.tags.length > 3 && (
-                        <ResourceTag>+{resource.tags.length - 3}</ResourceTag>
-                      )}
-                    </ResourceTagContainer>
-                  )}
-                  
-                  <ViewButton 
-                    href={resource.url} 
-                    target="_blank" 
-                    rel="noopener noreferrer"
-                  >
-                    Accesează resursa
-                  </ViewButton>
-                </div>
+                {resource.tags && resource.tags.length > 0 && (
+                  <ResourceTagContainer>
+                    {resource.tags.slice(0, 3).map((tag, index) => (
+                      <ResourceTag key={index}>{tag}</ResourceTag>
+                    ))}
+                    {resource.tags.length > 3 && (
+                      <ResourceTag>+{resource.tags.length - 3}</ResourceTag>
+                    )}
+                  </ResourceTagContainer>
+                )}
               </ResourceCardContent>
+              
+              <ViewButton 
+                href={resource.url} 
+                target="_blank" 
+                rel="noopener noreferrer"
+              >
+                Accesează resursa
+              </ViewButton>
             </ResourceCard>
           ))}
         </GridContainer>
       ) : (
         <NoResultsContainer>
+          <h3>Nu am găsit resurse</h3>
           <p>Nu există resurse disponibile pentru filtrele selectate.</p>
         </NoResultsContainer>
       )}

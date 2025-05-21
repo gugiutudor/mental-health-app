@@ -9,23 +9,25 @@ import styled from 'styled-components';
 const Form = styled.form`
   display: flex;
   flex-direction: column;
-  gap: 1rem;
+  gap: 1.5rem;
 `;
 
 const FormGroup = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: 0.6rem;
 `;
 
 const Label = styled.label`
   font-weight: 600;
+  color: #4a5568;
+  font-size: 1rem;
 `;
 
 const MoodSlider = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: 0.75rem;
 `;
 
 const SliderContainer = styled.div`
@@ -46,63 +48,100 @@ const Slider = styled.input`
   &::-webkit-slider-thumb {
     -webkit-appearance: none;
     appearance: none;
-    width: 18px;
-    height: 18px;
-    background: #4c51bf;
+    width: 22px;
+    height: 22px;
+    background: var(--primary-color);
     border-radius: 50%;
     cursor: pointer;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    transition: all 0.2s;
+  }
+
+  &::-webkit-slider-thumb:hover {
+    transform: scale(1.15);
+    background: var(--primary-hover);
   }
 
   &::-moz-range-thumb {
-    width: 18px;
-    height: 18px;
-    background: #4c51bf;
+    width: 22px;
+    height: 22px;
+    background: var(--primary-color);
     border-radius: 50%;
     cursor: pointer;
     border: none;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    transition: all 0.2s;
+  }
+  
+  &::-moz-range-thumb:hover {
+    transform: scale(1.15);
+    background: var(--primary-hover);
   }
 `;
 
 const MoodValue = styled.span`
   font-weight: 600;
-  width: 2rem;
-  text-align: center;
+  color: var(--primary-color);
+  width: 2.5rem;
+  height: 2.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: rgba(79, 70, 229, 0.1);
+  border-radius: 50%;
+  font-size: 1.125rem;
 `;
 
 const TextArea = styled.textarea`
-  padding: 0.75rem;
-  border: 1px solid #ddd;
-  border-radius: 4px;
+  padding: 1rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
   font-size: 1rem;
-  min-height: 100px;
+  min-height: 120px;
   resize: vertical;
+  transition: all 0.2s;
+  background-color: var(--card-bg);
+  color: var(--text-color);
+  
+  &:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.2);
+  }
 `;
 
 const FactorsGrid = styled.div`
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 1rem;
+  gap: 1.5rem;
+  
+  @media (max-width: 640px) {
+    grid-template-columns: 1fr;
+  }
 `;
 
 const FactorGroup = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: 0.75rem;
 `;
 
 const SubmitButton = styled.button`
-  background-color: #4c51bf;
+  background-color: var(--primary-color);
   color: white;
-  padding: 0.75rem;
+  padding: 0.85rem;
   border: none;
-  border-radius: 4px;
-  font-size: 1rem;
+  border-radius: 8px;
+  font-size: 1.1rem;
   font-weight: 600;
   cursor: pointer;
-  transition: background-color 0.2s;
+  transition: all 0.2s;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 
   &:hover {
-    background-color: #434190;
+    background-color: var(--primary-hover);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
   }
 
   &:disabled {
@@ -113,81 +152,127 @@ const SubmitButton = styled.button`
 
 const ErrorText = styled.div`
   color: #e53e3e;
-  font-size: 0.875rem;
+  font-size: 0.9rem;
 `;
 
 const SuccessMessage = styled.div`
   background-color: #c6f6d5;
   color: #276749;
-  padding: 1rem;
-  border-radius: 4px;
-  margin-bottom: 1rem;
+  padding: 1.25rem;
+  border-radius: 8px;
+  margin-bottom: 1.5rem;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  
+  &::before {
+    content: '✓';
+    font-size: 1.25rem;
+    font-weight: 700;
+  }
 `;
 
 const TagsInput = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: 0.75rem;
 `;
 
 const TagsContainer = styled.div`
   display: flex;
   flex-wrap: wrap;
-  gap: 0.5rem;
+  gap: 0.6rem;
   margin-top: 0.5rem;
 `;
 
+const TagInputContainer = styled.div`
+  display: flex;
+  gap: 0.5rem;
+`;
+
 const TagInput = styled.input`
-  padding: 0.75rem;
-  border: 1px solid #ddd;
-  border-radius: 4px;
+  flex-grow: 1;
+  padding: 0.85rem 1rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
   font-size: 1rem;
+  transition: all 0.2s;
+  background-color: var(--card-bg);
+  color: var(--text-color);
+  
+  &:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.2);
+  }
 `;
 
 const TagButton = styled.button`
-  background-color: #4c51bf;
+  background-color: var(--primary-color);
   color: white;
-  padding: 0.5rem 0.75rem;
+  padding: 0 1.25rem;
   border: none;
-  border-radius: 4px;
-  font-size: 0.875rem;
-  font-weight: 500;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  font-weight: 600;
   cursor: pointer;
-  margin-left: 0.5rem;
-  transition: background-color 0.2s;
+  transition: all 0.2s;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 
   &:hover {
-    background-color: #434190;
+    background-color: var(--primary-hover);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.15);
   }
 `;
 
 const Tag = styled.span`
   background-color: #e9d8fd;
   color: #6b46c1;
-  font-size: 0.875rem;
-  padding: 0.25rem 0.75rem;
+  font-size: 0.9rem;
+  padding: 0.4rem 0.85rem;
   border-radius: 9999px;
   display: flex;
   align-items: center;
   gap: 0.5rem;
+  font-weight: 500;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+  transition: all 0.2s;
+  
+  &:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
 `;
 
 const RemoveTagButton = styled.button`
   background: none;
   border: none;
   color: #6b46c1;
-  font-size: 1rem;
+  font-size: 1.1rem;
   padding: 0;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 16px;
-  height: 16px;
+  width: 18px;
+  height: 18px;
 
   &:hover {
     color: #553c9a;
   }
+`;
+
+const MoodExpressionContainer = styled.div`
+  display: flex;
+  justify-content: space-between;
+  padding: 0 0.5rem;
+  margin-bottom: 0.5rem;
+`;
+
+const MoodExpression = styled.span`
+  font-size: 1.5rem;
 `;
 
 const MoodTracker = () => {
@@ -250,6 +335,7 @@ const MoodTracker = () => {
         
         setSuccess(true);
         resetForm();
+        setTagInput('');
         
         // Ascunde mesajul de succes după 3 secunde
         setTimeout(() => {
@@ -285,6 +371,17 @@ const MoodTracker = () => {
     }
   };
 
+  // Funcție pentru a afișa emoji-ul potrivit pentru nivelul de dispoziție
+  const getMoodEmoji = (mood) => {
+    const moodValue = Number(mood);
+    if (moodValue <= 2) return '😣';
+    if (moodValue <= 4) return '😟';
+    if (moodValue <= 5) return '😐';
+    if (moodValue <= 7) return '🙂';
+    if (moodValue <= 9) return '😄';
+    return '😁';
+  };
+
   return (
     <div data-testid="mood-tracker">
       {success && (
@@ -297,8 +394,16 @@ const MoodTracker = () => {
         <FormGroup>
           <MoodSlider>
             <Label htmlFor="mood">Cum te simți astăzi? (1-10)</Label>
+            <MoodExpressionContainer>
+              <MoodExpression>😣</MoodExpression>
+              <MoodExpression>😟</MoodExpression>
+              <MoodExpression>😐</MoodExpression>
+              <MoodExpression>🙂</MoodExpression>
+              <MoodExpression>😄</MoodExpression>
+              <MoodExpression>😁</MoodExpression>
+            </MoodExpressionContainer>
             <SliderContainer>
-              <span>😞</span>
+              <span>1</span>
               <Slider
                 id="mood"
                 name="mood"
@@ -309,7 +414,7 @@ const MoodTracker = () => {
                 onChange={formik.handleChange}
                 value={formik.values.mood}
               />
-              <span>😄</span>
+              <span>10</span>
               <MoodValue>{formik.values.mood}</MoodValue>
             </SliderContainer>
           </MoodSlider>
@@ -413,7 +518,7 @@ const MoodTracker = () => {
         <FormGroup>
           <TagsInput>
             <Label htmlFor="tags">Tag-uri (opțional)</Label>
-            <div style={{ display: 'flex' }}>
+            <TagInputContainer>
               <TagInput
                 id="tagInput"
                 type="text"
@@ -425,7 +530,7 @@ const MoodTracker = () => {
               <TagButton type="button" onClick={handleAddTag}>
                 Adaugă
               </TagButton>
-            </div>
+            </TagInputContainer>
             {formik.values.tags.length > 0 && (
               <TagsContainer>
                 {formik.values.tags.map((tag, index) => (

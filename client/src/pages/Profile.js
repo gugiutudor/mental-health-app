@@ -10,23 +10,59 @@ import styled from 'styled-components';
 const ProfileContainer = styled.div`
   max-width: 800px;
   margin: 2rem auto;
-  padding: 0 1rem;
+  padding: 0 1.5rem;
+`;
+
+const PageHeader = styled.div`
+  margin-bottom: 2rem;
+  
+  h1 {
+    color: var(--primary-color);
+    font-size: 2rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+  }
+  
+  p {
+    color: #718096;
+    font-size: 1.1rem;
+    line-height: 1.5;
+  }
 `;
 
 const Card = styled.div`
-  background-color: white;
-  border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  padding: 1.5rem;
+  background-color: var(--card-bg);
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  padding: 1.75rem;
   margin-bottom: 2rem;
+  transition: all 0.3s ease;
+  
+  &:hover {
+    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+    transform: translateY(-3px);
+  }
 `;
 
 const SectionTitle = styled.h2`
-  color: #2d3748;
-  font-size: 1.5rem;
+  color: var(--primary-color);
+  font-size: 1.4rem;
+  font-weight: 700;
   margin-bottom: 1.5rem;
-  border-bottom: 1px solid #e2e8f0;
   padding-bottom: 0.75rem;
+  border-bottom: 1px solid #e2e8f0;
+  position: relative;
+  
+  &::after {
+    content: '';
+    position: absolute;
+    bottom: -1px;
+    left: 0;
+    width: 60px;
+    height: 3px;
+    background-color: var(--primary-color);
+    border-radius: 3px;
+  }
 `;
 
 const Form = styled.form`
@@ -38,50 +74,103 @@ const Form = styled.form`
 const FormGroup = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: 0.6rem;
+`;
+
+const FormRow = styled.div`
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+  
+  @media (max-width: 640px) {
+    grid-template-columns: 1fr;
+  }
 `;
 
 const Label = styled.label`
   font-weight: 600;
   color: #4a5568;
+  font-size: 1rem;
 `;
 
 const Input = styled.input`
-  padding: 0.75rem;
+  padding: 0.85rem 1rem;
   border: 1px solid #e2e8f0;
-  border-radius: 4px;
+  border-radius: 8px;
   font-size: 1rem;
-  transition: border-color 0.2s;
-
+  transition: all 0.2s;
+  background-color: var(--card-bg);
+  color: var(--text-color);
+  
   &:focus {
     outline: none;
-    border-color: #4c51bf;
-    box-shadow: 0 0 0 1px rgba(76, 81, 191, 0.2);
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.2);
   }
 `;
 
 const Select = styled.select`
-  padding: 0.75rem;
+  padding: 0.85rem 1rem;
   border: 1px solid #e2e8f0;
-  border-radius: 4px;
+  border-radius: 8px;
   font-size: 1rem;
-  background-color: white;
+  background-color: var(--card-bg);
+  color: var(--text-color);
+  transition: all 0.2s;
 
   &:focus {
     outline: none;
-    border-color: #4c51bf;
-    box-shadow: 0 0 0 1px rgba(76, 81, 191, 0.2);
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.2);
   }
 `;
 
 // Componenta ToggleSwitch pentru un buton de comutare mai robust
+const SwitchContainer = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  cursor: pointer;
+`;
+
+const SwitchControl = styled.div`
+  position: relative;
+  width: 54px;
+  height: 28px;
+  background-color: ${props => props.checked ? 'var(--primary-color)' : 'var(--switch-inactive)'};
+  border-radius: 14px;
+  transition: background-color 0.3s;
+  
+  &:hover {
+    box-shadow: 0 0 8px rgba(79, 70, 229, 0.4);
+  }
+`;
+
+const SwitchButton = styled.div`
+  position: absolute;
+  top: 4px;
+  left: ${props => props.checked ? 'calc(100% - 24px)' : '4px'};
+  width: 20px;
+  height: 20px;
+  background-color: white;
+  border-radius: 50%;
+  transition: left 0.3s;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+`;
+
+const SwitchLabel = styled.span`
+  font-weight: 600;
+  color: #4a5568;
+  font-size: 1rem;
+`;
+
 const ToggleSwitch = ({ checked, onChange, label }) => {
   return (
     <SwitchContainer onClick={() => onChange(!checked)}>
       <SwitchControl checked={checked}>
         <SwitchButton checked={checked} />
       </SwitchControl>
-      <Label style={{ marginBottom: 0, cursor: 'pointer' }}>{label}</Label>
+      <SwitchLabel>{label}</SwitchLabel>
       <input
         type="checkbox"
         checked={checked}
@@ -92,47 +181,23 @@ const ToggleSwitch = ({ checked, onChange, label }) => {
   );
 };
 
-const SwitchContainer = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  cursor: pointer;
-`;
-
-const SwitchControl = styled.div`
-  position: relative;
-  width: 48px;
-  height: 24px;
-  background-color: ${props => props.checked ? '#4c51bf' : '#cbd5e0'};
-  border-radius: 12px;
-  transition: background-color 0.3s;
-`;
-
-const SwitchButton = styled.div`
-  position: absolute;
-  top: 3px;
-  left: ${props => props.checked ? 'calc(100% - 21px)' : '3px'};
-  width: 18px;
-  height: 18px;
-  background-color: white;
-  border-radius: 50%;
-  transition: left 0.3s;
-`;
-
 const SaveButton = styled.button`
-  background-color: #4c51bf;
+  background-color: var(--primary-color);
   color: white;
-  padding: 0.75rem;
+  padding: 0.85rem;
   border: none;
-  border-radius: 4px;
-  font-size: 1rem;
+  border-radius: 8px;
+  font-size: 1.1rem;
   font-weight: 600;
   cursor: pointer;
-  transition: background-color 0.2s;
+  transition: all 0.2s;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   margin-top: 1rem;
 
   &:hover {
-    background-color: #434190;
+    background-color: var(--primary-hover);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
   }
 
   &:disabled {
@@ -143,15 +208,35 @@ const SaveButton = styled.button`
 
 const ErrorText = styled.div`
   color: #e53e3e;
-  font-size: 0.875rem;
+  font-size: 0.9rem;
 `;
 
 const SuccessMessage = styled.div`
   background-color: #c6f6d5;
   color: #276749;
-  padding: 1rem;
-  border-radius: 4px;
-  margin-bottom: 1rem;
+  padding: 1.25rem;
+  border-radius: 8px;
+  margin-bottom: 1.5rem;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  
+  &::before {
+    content: '✓';
+    font-size: 1.25rem;
+    font-weight: 700;
+  }
+`;
+
+const LoadingContainer = styled.div`
+  text-align: center;
+  padding: 3rem;
+  font-size: 1.25rem;
+  color: #4a5568;
+  background-color: var(--card-bg);
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
 `;
 
 const Profile = () => {
@@ -260,12 +345,19 @@ const Profile = () => {
     }
   }, [data]);
 
-  if (loading) return <ProfileContainer><p>Se încarcă datele profilului...</p></ProfileContainer>;
-  if (error) return <ProfileContainer><p>Eroare la încărcarea profilului: {error.message}</p></ProfileContainer>;
+  if (loading) return <LoadingContainer>Se încarcă datele profilului...</LoadingContainer>;
+  if (error) return (
+    <ProfileContainer>
+      <ErrorText>Eroare la încărcarea profilului: {error.message}</ErrorText>
+    </ProfileContainer>
+  );
 
   return (
     <ProfileContainer>
-      <h1>Profilul meu</h1>
+      <PageHeader>
+        <h1>Profilul meu</h1>
+        <p>Personalizează setările contului tău și preferințele aplicației ZenPath.</p>
+      </PageHeader>
       
       {success && (
         <SuccessMessage>
@@ -278,35 +370,37 @@ const Profile = () => {
           <Card>
             <SectionTitle>Editează profilul</SectionTitle>
             
-            <FormGroup>
-              <Label htmlFor="firstName">Prenume</Label>
-              <Input
-                id="firstName"
-                name="firstName"
-                type="text"
-                onChange={formik.handleChange}
-                onBlur={formik.handleBlur}
-                value={formik.values.firstName}
-              />
-              {formik.touched.firstName && formik.errors.firstName ? (
-                <ErrorText>{formik.errors.firstName}</ErrorText>
-              ) : null}
-            </FormGroup>
-            
-            <FormGroup>
-              <Label htmlFor="lastName">Nume de familie</Label>
-              <Input
-                id="lastName"
-                name="lastName"
-                type="text"
-                onChange={formik.handleChange}
-                onBlur={formik.handleBlur}
-                value={formik.values.lastName}
-              />
-              {formik.touched.lastName && formik.errors.lastName ? (
-                <ErrorText>{formik.errors.lastName}</ErrorText>
-              ) : null}
-            </FormGroup>
+            <FormRow>
+              <FormGroup>
+                <Label htmlFor="firstName">Prenume</Label>
+                <Input
+                  id="firstName"
+                  name="firstName"
+                  type="text"
+                  onChange={formik.handleChange}
+                  onBlur={formik.handleBlur}
+                  value={formik.values.firstName}
+                />
+                {formik.touched.firstName && formik.errors.firstName ? (
+                  <ErrorText>{formik.errors.firstName}</ErrorText>
+                ) : null}
+              </FormGroup>
+              
+              <FormGroup>
+                <Label htmlFor="lastName">Nume de familie</Label>
+                <Input
+                  id="lastName"
+                  name="lastName"
+                  type="text"
+                  onChange={formik.handleChange}
+                  onBlur={formik.handleBlur}
+                  value={formik.values.lastName}
+                />
+                {formik.touched.lastName && formik.errors.lastName ? (
+                  <ErrorText>{formik.errors.lastName}</ErrorText>
+                ) : null}
+              </FormGroup>
+            </FormRow>
             
             <FormGroup>
               <Label htmlFor="email">Email</Label>
