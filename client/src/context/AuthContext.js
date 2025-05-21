@@ -32,6 +32,11 @@ export const AuthProvider = ({ children }) => {
         }
         
         setCurrentUser(parsedUser);
+        
+        // Aplică tema salvată
+        if (parsedUser.preferences && parsedUser.preferences.theme) {
+          applyTheme(parsedUser.preferences.theme);
+        }
       } catch (error) {
         console.error('Eroare la parsarea datelor utilizator:', error);
         logout();
@@ -58,6 +63,12 @@ export const AuthProvider = ({ children }) => {
     }
     
     localStorage.setItem('user', JSON.stringify(userToStore));
+    
+    // Aplicăm tema selectată dacă există în preferințe
+    if (userToStore.preferences && userToStore.preferences.theme) {
+      applyTheme(userToStore.preferences.theme);
+    }
+    
     setCurrentUser(userToStore);
     setError(null);
   };
@@ -66,11 +77,19 @@ export const AuthProvider = ({ children }) => {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
     setCurrentUser(null);
+    
+    // Resetăm tema la cea implicită
+    applyTheme('light');
   };
 
   const updateUser = (userData) => {
     // Asigurăm-ne că păstrăm toate datele utilizatorului
     const updatedUser = { ...currentUser, ...userData };
+    
+    // Aplicăm tema selectată dacă există în preferințe
+    if (updatedUser.preferences && updatedUser.preferences.theme) {
+      applyTheme(updatedUser.preferences.theme);
+    }
     
     // Vom adăuga și câmpul name pentru compatibilitate
     if (updatedUser.firstName && updatedUser.lastName) {
@@ -80,6 +99,41 @@ export const AuthProvider = ({ children }) => {
     localStorage.setItem('user', JSON.stringify(updatedUser));
     setCurrentUser(updatedUser);
   };
+  
+  // Funcție pentru aplicarea temei
+  const applyTheme = (theme) => {
+    const root = document.documentElement;
+    
+    if (theme === 'dark') {
+      root.style.setProperty('--bg-color', '#1a202c');
+      root.style.setProperty('--text-color', '#f7fafc');
+      root.style.setProperty('--card-bg', '#2d3748');
+      root.style.setProperty('--border-color', '#4a5568');
+      document.body.className = 'theme-dark';
+    } else if (theme === 'light') {
+      root.style.setProperty('--bg-color', '#f7fafc');
+      root.style.setProperty('--text-color', '#2d3748');
+      root.style.setProperty('--card-bg', '#ffffff');
+      root.style.setProperty('--border-color', '#e2e8f0');
+      document.body.className = 'theme-light';
+    } else if (theme === 'auto') {
+      // Verifică preferința de sistem
+      document.body.className = 'theme-auto';
+      const prefersDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      
+      if (prefersDarkMode) {
+        root.style.setProperty('--bg-color', '#1a202c');
+        root.style.setProperty('--text-color', '#f7fafc');
+        root.style.setProperty('--card-bg', '#2d3748');
+        root.style.setProperty('--border-color', '#4a5568');
+      } else {
+        root.style.setProperty('--bg-color', '#f7fafc');
+        root.style.setProperty('--text-color', '#2d3748');
+        root.style.setProperty('--card-bg', '#ffffff');
+        root.style.setProperty('--border-color', '#e2e8f0');
+      }
+    }
+  };
 
   const value = {
     currentUser,
@@ -88,7 +142,8 @@ export const AuthProvider = ({ children }) => {
     login,
     logout,
     updateUser,
-    setError
+    setError,
+    applyTheme
   };
 
   return (
