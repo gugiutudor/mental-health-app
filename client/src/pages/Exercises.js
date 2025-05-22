@@ -429,13 +429,6 @@ const Exercises = () => {
         <p>Descoperă exerciții personalizate care te ajută să-ți îmbunătățești starea de spirit și echilibrul mental prin practici dovedite științific.</p>
       </PageHeader>
 
-      {currentUser && (
-        <WelcomeSection>
-          <UserGreeting>Salut, {currentUser.firstName}! 👋</UserGreeting>
-          <GreetingText>Află exercițiile potrivite pentru tine și începe călătoria către o sănătate mentală mai bună.</GreetingText>
-        </WelcomeSection>
-      )}
-
       <StatsContainer>
         <StatCard>
           <StatValue>{totalExercises}</StatValue>

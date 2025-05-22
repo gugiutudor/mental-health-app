@@ -5,12 +5,60 @@ import MoodTracker from '../components/mood/MoodTracker';
 import MoodHistory from '../components/mood/MoodHistory';
 import RecommendedExercises from '../components/exercises/RecommendedExercises';
 import RecommendedResources from '../components/resources/RecommendedResources';
+import { useAuth } from '../context/AuthContext';
 import styled from 'styled-components';
 
 const DashboardContainer = styled.div`
   padding: 2rem 1.5rem;
   max-width: 1400px;
   margin: 0 auto;
+`;
+
+const PageHeader = styled.div`
+  text-align: center;
+  margin-bottom: 3rem;
+  
+  h1 {
+    color: var(--text-color);
+    font-size: 2.5rem;
+    font-weight: 800;
+    margin-bottom: 1rem;
+    background: linear-gradient(135deg, var(--primary-color) 0%, #5146e2 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  
+  p {
+    color: #718096;
+    font-size: 1.2rem;
+    line-height: 1.6;
+    max-width: 600px;
+    margin: 0 auto;
+  }
+`;
+
+const WelcomeSection = styled.div`
+  background: linear-gradient(135deg, rgba(244, 244, 255, 0.5) 0%, rgba(228, 248, 255, 0.5) 100%);
+  border-radius: 16px;
+  padding: 2rem;
+  margin-bottom: 3rem;
+  text-align: center;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  border: 1px solid rgba(79, 70, 229, 0.1);
+`;
+
+const UserGreeting = styled.h2`
+  color: var(--primary-color);
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+`;
+
+const GreetingText = styled.p`
+  color: #4a5568;
+  font-size: 1.1rem;
+  margin: 0;
 `;
 
 const DashboardGrid = styled.div`
@@ -91,6 +139,8 @@ const DailyTip = styled.div`
 `;
 
 const Dashboard = () => {
+  const { currentUser } = useAuth();
+  
   const { loading: moodLoading, error: moodError, data: moodData } = useQuery(GET_MOOD_ENTRIES, {
     variables: { limit: 7 } // Ultimele 7 înregistrări
   });
@@ -113,16 +163,28 @@ const Dashboard = () => {
 
   return (
     <DashboardContainer>
+      <PageHeader>
+        <h1>Bun venit la aplicația de sănătate mentală</h1>
+        <p>Monitorizează starea ta emoțională, descoperă exerciții personalizate și găsește resurse utile pentru o viață echilibrată.</p>
+      </PageHeader>
+
+      {currentUser && (
+        <WelcomeSection>
+          <UserGreeting>Salut, {currentUser.firstName}! 👋</UserGreeting>
+          <GreetingText>Ești gata să îți îmbunătățești ziua? Începe cu o înregistrare a dispoziției tale curente.</GreetingText>
+        </WelcomeSection>
+      )}
+
       <DashboardGrid>
         <LeftColumn>
           <Card>
-            <SectionHeading>Istoricul dispoziției</SectionHeading>
-            <MoodHistory />
+            <SectionHeading>Adaugă dispoziția curentă</SectionHeading>
+            <MoodTracker />
           </Card>
           
           <Card>
-            <SectionHeading>Adaugă dispoziția curentă</SectionHeading>
-            <MoodTracker />
+            <SectionHeading>Istoricul dispoziției</SectionHeading>
+            <MoodHistory />
           </Card>
         </LeftColumn>
         

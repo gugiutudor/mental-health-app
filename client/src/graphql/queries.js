@@ -20,8 +20,6 @@ export const GET_USER_PROFILE = gql`
   }
 `;
 
-// Celelalte queries rămân neschimbate
-
 // Mood queries
 export const GET_MOOD_ENTRIES = gql`
   query GetMoodEntries($limit: Int, $offset: Int) {
@@ -151,6 +149,12 @@ export const GET_RESOURCES = gql`
       type
       url
       tags
+      recommendedFor {
+        moodLevel {
+          min
+          max
+        }
+      }
       createdAt
     }
   }
@@ -165,7 +169,29 @@ export const GET_RESOURCE = gql`
       type
       url
       tags
+      recommendedFor {
+        moodLevel {
+          min
+          max
+        }
+      }
       createdAt
+    }
+  }
+`;
+
+export const GET_RECOMMENDED_RESOURCES = gql`
+  query GetRecommendedResources($limit: Int) {
+    getRecommendedResources(limit: $limit) {
+      resource {
+        id
+        title
+        description
+        type
+        url
+        tags
+      }
+      score
     }
   }
 `;

@@ -439,18 +439,16 @@ const Resources = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const { currentUser } = useAuth();
   
-  // Tipuri de resurse disponibile
+  // Tipuri de resurse disponibile - SIMPLIFICAT
   const resourceTypes = [
     { value: '', label: 'Toate', icon: '🌟' },
     { value: 'article', label: 'Articole', icon: '📄' },
     { value: 'video', label: 'Video', icon: '🎬' },
-    { value: 'audio', label: 'Audio', icon: '🎧' },
     { value: 'book', label: 'Cărți', icon: '📚' },
-    { value: 'infographic', label: 'Infografice', icon: '📊' },
     { value: 'other', label: 'Altele', icon: '📋' }
   ];
   
-  // Tag-uri comune pentru resurse
+  // Tag-uri comune pentru resurse - corespund cu cele din populate-database.js
   const commonTags = [
     { name: 'anxietate', icon: '😰' },
     { name: 'depresie', icon: '😔' },
@@ -529,13 +527,6 @@ const Resources = () => {
         <h1>Resurse pentru sănătate mentală</h1>
         <p>Explorează o colecție curată de resurse valoroase care te ajută să înțelegi și să-ți îmbunătățești starea emoțională prin conținut de calitate.</p>
       </PageHeader>
-
-      {currentUser && (
-        <WelcomeSection>
-          <UserGreeting>Bine ai venit, {currentUser.firstName}! 📚</UserGreeting>
-          <GreetingText>Descoperă resurse educaționale și de suport adaptate nevoilor tale de dezvoltare personală.</GreetingText>
-        </WelcomeSection>
-      )}
 
       <StatsContainer>
         <StatCard>

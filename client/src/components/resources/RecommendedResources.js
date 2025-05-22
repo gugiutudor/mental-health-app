@@ -1,6 +1,6 @@
 import React from 'react';
 import { useQuery } from '@apollo/client';
-import { GET_RESOURCES } from '../../graphql/queries';
+import { GET_RECOMMENDED_RESOURCES } from '../../graphql/queries';
 import { GET_MOOD_ENTRIES } from '../../graphql/queries';
 import styled from 'styled-components';
 
@@ -97,6 +97,30 @@ const ResourceTitle = styled.h3`
   font-weight: 700;
   line-height: 1.3;
   flex: 1;
+`;
+
+const ResourceScore = styled.div`
+  background: ${props => {
+    if (props.score >= 0.8) return 'linear-gradient(135deg, #c6f6d5 0%, #9ae6b4 100%)';
+    if (props.score >= 0.5) return 'linear-gradient(135deg, #feebc8 0%, #fed7aa 100%)';
+    return 'linear-gradient(135deg, #fed7d7 0%, #fecaca 100%)';
+  }};
+  color: ${props => {
+    if (props.score >= 0.8) return '#2f855a';
+    if (props.score >= 0.5) return '#c05621';
+    return '#c53030';
+  }};
+  font-size: 0.8rem;
+  font-weight: 700;
+  padding: 0.4rem 0.8rem;
+  border-radius: 15px;
+  white-space: nowrap;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  border: 1px solid ${props => {
+    if (props.score >= 0.8) return '#9ae6b4';
+    if (props.score >= 0.5) return '#fed7aa';
+    return '#fecaca';
+  }};
 `;
 
 const ResourceDescription = styled.p`
@@ -235,7 +259,12 @@ const RecommendedResources = ({ limit = 3 }) => {
     variables: { limit: 5 }
   });
   
-  // Extrage tag-uri din înregistrările de dispoziție
+  // Obține resursele recomandate direct din backend
+  const { loading, error, data } = useQuery(GET_RECOMMENDED_RESOURCES, {
+    variables: { limit }
+  });
+  
+  // Extrage tag-uri din înregistrările de dispoziție pentru highlighting
   const relevantTags = React.useMemo(() => {
     if (!moodData || !moodData.getMoodEntries || moodData.getMoodEntries.length === 0) {
       return [];
@@ -257,24 +286,6 @@ const RecommendedResources = ({ limit = 3 }) => {
       .slice(0, 3)
       .map(([tag]) => tag);
   }, [moodData]);
-  
-  // Obține media dispozițiilor recente
-  const recentMoodAverage = React.useMemo(() => {
-    if (!moodData || !moodData.getMoodEntries || moodData.getMoodEntries.length === 0) {
-      return 5; // Valoare implicită
-    }
-    
-    const sum = moodData.getMoodEntries.reduce((acc, entry) => acc + entry.mood, 0);
-    return sum / moodData.getMoodEntries.length;
-  }, [moodData]);
-  
-  // Obține resursele
-  const { loading, error, data } = useQuery(GET_RESOURCES, {
-    variables: { 
-      tags: relevantTags.length > 0 ? relevantTags : undefined,
-      limit
-    }
-  });
 
   // Obține icoanele pentru tipurile de resurse
   const getResourceIcon = (type) => {
@@ -302,32 +313,11 @@ const RecommendedResources = ({ limit = 3 }) => {
     
     return types[type] || type;
   };
-  
-  // Filtrează resursele în funcție de dispoziția curentă
-  const filteredResources = React.useMemo(() => {
-    if (!data || !data.getResources) return [];
-    
-    return data.getResources
-      .filter(resource => {
-        // Verifică dacă resursa este recomandată pentru nivelul de dispoziție curent
-        if (!resource.recommendedFor || resource.recommendedFor.length === 0) {
-          return true; // Include toate resursele care nu au recomandări specifice
-        }
-        
-        return resource.recommendedFor.some(rec => {
-          if (!rec.moodLevel) return true;
-          const { min, max } = rec.moodLevel;
-          return min <= recentMoodAverage && recentMoodAverage <= max;
-        });
-      })
-      .sort((a, b) => {
-        // Sortează după cât de multe tag-uri relevante are fiecare resursă
-        const aRelevantTags = a.tags ? a.tags.filter(tag => relevantTags.includes(tag)).length : 0;
-        const bRelevantTags = b.tags ? b.tags.filter(tag => relevantTags.includes(tag)).length : 0;
-        return bRelevantTags - aRelevantTags;
-      })
-      .slice(0, limit);
-  }, [data, recentMoodAverage, relevantTags, limit]);
+
+  // Convertește scorul în procentaj pentru afișare
+  const getScorePercentage = (score) => {
+    return Math.round(score * 100);
+  };
 
   return (
     <Container>
@@ -343,9 +333,9 @@ const RecommendedResources = ({ limit = 3 }) => {
           <h4>⚠️ Eroare la încărcarea resurselor</h4>
           <p>{error.message}</p>
         </ErrorContainer>
-      ) : filteredResources && filteredResources.length > 0 ? (
+      ) : data && data.getRecommendedResources && data.getRecommendedResources.length > 0 ? (
         <ResourceList>
-          {filteredResources.map(resource => (
+          {data.getRecommendedResources.map(({ resource, score }) => (
             <ResourceCard key={resource.id}>
               <ResourceContent>
                 <ResourceHeader>
@@ -353,6 +343,9 @@ const RecommendedResources = ({ limit = 3 }) => {
                     {getResourceIcon(resource.type)}
                   </ResourceTypeIcon>
                   <ResourceTitle>{resource.title}</ResourceTitle>
+                  <ResourceScore score={score}>
+                    {getScorePercentage(score)}% potrivire
+                  </ResourceScore>
                 </ResourceHeader>
                 
                 <ResourceDescription>
