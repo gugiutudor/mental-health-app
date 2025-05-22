@@ -203,7 +203,7 @@ const resourcesData = [
     description: 'Ghid comprehensive al Organizației Mondiale a Sănătății despre sănătatea mentală, cu informații bazate pe evidențe științifice.',
     type: 'article',
     url: 'https://www.who.int/news-room/fact-sheets/detail/mental-disorders',
-    tags: ['OMS', 'informații generale', 'știință', 'prevenție'],
+    tags: ['informații generale', 'știință', 'prevenție', 'educație'],
     recommendedFor: [
       {
         moodLevel: { min: 1, max: 10 }
@@ -227,7 +227,7 @@ const resourcesData = [
     description: 'Podcast oficial al sistemului de sănătate britanic cu episoade despre diverse aspecte ale sănătății mentale.',
     type: 'audio',
     url: 'https://www.nhs.uk/mental-health/self-help/guides-tools-and-activities/mental-health-podcasts/',
-    tags: ['podcast', 'NHS', 'educație', 'diversitate'],
+    tags: ['podcast', 'educație', 'diversitate', 'suport'],
     recommendedFor: [
       {
         moodLevel: { min: 1, max: 10 }
@@ -239,7 +239,7 @@ const resourcesData = [
     description: 'Lista cuprinzătoare de cărți despre sănătatea mentală, cu review-uri și recomandări de la comunitatea de cititori.',
     type: 'book',
     url: 'https://www.goodreads.com/shelf/show/mental-health',
-    tags: ['cărți', 'literatură de specialitate', 'autoajutorare', 'psihologie'],
+    tags: ['cărți', 'literatura de specialitate', 'autoajutorare', 'psihologie'],
     recommendedFor: [
       {
         moodLevel: { min: 3, max: 10 }
@@ -251,7 +251,7 @@ const resourcesData = [
     description: 'Infografic vizual și informativ despre recunoașterea semnelor depresiei și modalitățile de a obține ajutor profesional.',
     type: 'infographic',
     url: 'https://www.nimh.nih.gov/health/publications/depression/index.shtml',
-    tags: ['depresie', 'semne', 'ajutor profesional', 'NIMH'],
+    tags: ['depresie', 'semne', 'ajutor profesional', 'recunoaștere'],
     recommendedFor: [
       {
         moodLevel: { min: 1, max: 5 }
@@ -267,6 +267,30 @@ const resourcesData = [
     recommendedFor: [
       {
         moodLevel: { min: 1, max: 10 }
+      }
+    ]
+  },
+  {
+    title: 'Ghid pentru gestionarea stresului - Mayo Clinic',
+    description: 'Resurse complete despre tehnicile de gestionare a stresului, bazate pe cercetările medicale de la Mayo Clinic.',
+    type: 'article',
+    url: 'https://www.mayoclinic.org/healthy-lifestyle/stress-management/basics/stress-basics/hlv-20049495',
+    tags: ['stres', 'gestionare', 'tehnici', 'sănătate'],
+    recommendedFor: [
+      {
+        moodLevel: { min: 1, max: 7 }
+      }
+    ]
+  },
+  {
+    title: 'Mindfulness pentru începători - Video course',
+    description: 'Curs video gratuit despre principiile mindfulness și cum să începi o practică de meditație zilnică.',
+    type: 'video',
+    url: 'https://www.mindful.org/meditation/mindfulness-getting-started/',
+    tags: ['mindfulness', 'începători', 'meditație', 'curs'],
+    recommendedFor: [
+      {
+        moodLevel: { min: 3, max: 10 }
       }
     ]
   }
@@ -358,6 +382,14 @@ async function displayStats() {
   resourceTypes.forEach(type => {
     console.log(`   - ${type._id}: ${type.count}`);
   });
+  
+  // Afișează câteva exemple de resurse pentru verificare
+  console.log('\n🔍 Exemple de resurse adăugate:');
+  const sampleResources = await Resource.find().limit(3);
+  sampleResources.forEach(resource => {
+    console.log(`   - ${resource.title} (${resource.type})`);
+    console.log(`     Tags: ${resource.tags.join(', ')}`);
+  });
 }
 
 // Funcția principală
@@ -374,6 +406,7 @@ async function main() {
     
     console.log('\n🎉 Baza de date a fost populată cu succes!');
     console.log('💡 Poți acum testa aplicația cu conținut real.');
+    console.log('🔧 Dacă resursele nu apar, verifică că resolver-ul pentru resurse este inclus în server.');
     
   } catch (error) {
     console.error('\n❌ Eroare în procesul de populare:', error);

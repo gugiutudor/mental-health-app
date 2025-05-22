@@ -122,6 +122,11 @@ const typeDefs = gql`
     score: Float!
   }
 
+  type ResourceRecommendation {
+    resource: Resource!
+    score: Float!
+  }
+
   input RegisterInput {
     email: String!
     password: String!
@@ -226,6 +231,7 @@ const typeDefs = gql`
     # Resource queries
     getResources(type: String, tags: [String], limit: Int, offset: Int): [Resource]
     getResource(id: ID!): Resource
+    getRecommendedResources(limit: Int): [ResourceRecommendation]
     
     # Progress queries
     getUserProgress(exerciseId: ID): [UserProgress]
