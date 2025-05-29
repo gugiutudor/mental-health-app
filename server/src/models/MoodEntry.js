@@ -49,21 +49,17 @@ const MoodEntrySchema = new mongoose.Schema({
   }]
 }, {
   timestamps: true,
-  // Configurare pentru transformarea automată
   toJSON: {
     virtuals: true,
     transform: function(doc, ret) {
-      // Adaugă un câmp 'id' care este o versiune string a _id-ului MongoDB
       ret.id = ret._id.toString();
       delete ret._id;
       delete ret.__v;
 
-      // Asigură formatul corect pentru date
       if (ret.date) {
         ret.date = new Date(ret.date).toISOString();
       }
       
-      // Asigură că toți factorii sunt numere
       if (ret.factors) {
         Object.keys(ret.factors).forEach(key => {
           if (ret.factors[key] !== undefined && ret.factors[key] !== null) {
@@ -74,7 +70,6 @@ const MoodEntrySchema = new mongoose.Schema({
         ret.factors = {};
       }
       
-      // Asigură că tags este un array
       if (!ret.tags) {
         ret.tags = [];
       }
@@ -85,10 +80,8 @@ const MoodEntrySchema = new mongoose.Schema({
   toObject: {
     virtuals: true,
     transform: function(doc, ret) {
-      // Adaugă un câmp 'id' care este o versiune string a _id-ului MongoDB
       ret.id = ret._id.toString();
       
-      // Asigură formatul corect pentru date
       if (ret.date) {
         try {
           ret.date = new Date(ret.date).toISOString();
@@ -104,14 +97,12 @@ const MoodEntrySchema = new mongoose.Schema({
   }
 });
 
-// Adaugă un virtual pentru id care returnează _id ca string
 MoodEntrySchema.virtual('id').get(function() {
   return this._id.toString();
 });
 
-// Hook pre-save pentru validare
 MoodEntrySchema.pre('save', function(next) {
-  // Asigură-te că date este un obiect Date valid
+
   if (this.date && !(this.date instanceof Date)) {
     try {
       this.date = new Date(this.date);
@@ -120,7 +111,7 @@ MoodEntrySchema.pre('save', function(next) {
     }
   }
 
-  // Asigură-te că mood este un număr între 1 și 10
+
   if (this.mood !== undefined) {
     const moodNum = Number(this.mood);
     if (!isNaN(moodNum)) {
@@ -128,7 +119,7 @@ MoodEntrySchema.pre('save', function(next) {
     }
   }
 
-  // Asigură-te că factorii sunt numere între 1 și 5
+
   if (this.factors) {
     ['sleep', 'stress', 'activity', 'social'].forEach(factor => {
       if (this.factors[factor] !== undefined && this.factors[factor] !== null) {

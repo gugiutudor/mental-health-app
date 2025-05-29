@@ -1,4 +1,3 @@
-// client/src/components/mood/MoodHistory.js - versiunea completă modificată
 import React, { useState, useEffect } from 'react';
 import { useQuery } from '@apollo/client';
 import { GET_MOOD_ENTRIES, GET_MOOD_STATISTICS } from '../../graphql/queries';
@@ -230,7 +229,6 @@ const NoDataMessage = styled.div`
   font-size: 0.9rem;
 `;
 
-// Funcție utilitară pentru a elimina proprietățile __typename din obiecte
 function stripTypenameFields(obj) {
   if (obj === null || obj === undefined || typeof obj !== 'object') {
     return obj;
@@ -250,12 +248,10 @@ function stripTypenameFields(obj) {
   return newObj;
 }
 
-// Funcție îmbunătățită pentru formatarea datei
 function formatDate(dateString) {
   if (!dateString) return 'Data necunoscută';
   
   try {
-    // Încearcă să formateze dacă este deja un obiect Date
     if (dateString instanceof Date) {
       if (isValid(dateString)) {
         return format(dateString, 'EEEE, d MMMM yyyy', { locale: ro });
@@ -263,19 +259,16 @@ function formatDate(dateString) {
       return 'Data necunoscută';
     }
     
-    // Încearcă cu parseISO pentru string-uri ISO 8601
     const parsedDate = parseISO(dateString);
     if (isValid(parsedDate)) {
       return format(parsedDate, 'EEEE, d MMMM yyyy', { locale: ro });
     }
     
-    // Încearcă cu constructorul Date pentru alte formate
     const date = new Date(dateString);
     if (isValid(date) && !isNaN(date.getTime())) {
       return format(date, 'EEEE, d MMMM yyyy', { locale: ro });
     }
     
-    // Dacă toate metodele eșuează, returnează un mesaj
     return dateString.toString().substring(0, 10);
   } catch (error) {
     console.error('Eroare la formatarea datei:', error);
@@ -286,17 +279,15 @@ function formatDate(dateString) {
 const MoodHistory = () => {
   const [activeTab, setActiveTab] = useState('chart');
   const [dateRange, setDateRange] = useState({
-    startDate: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0], // 7 zile în urmă
-    endDate: new Date().toISOString().split('T')[0] // data curentă
+    startDate: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+    endDate: new Date().toISOString().split('T')[0]
   });
   
-  // Obține înregistrările de dispoziție
   const { loading: entriesLoading, error: entriesError, data: entriesData, refetch: refetchEntries } = useQuery(GET_MOOD_ENTRIES, {
     variables: { limit: 30 },
-    fetchPolicy: 'network-only' // Forțează refresh-ul datelor
+    fetchPolicy: 'network-only'
   });
   
-  // Obține statisticile de dispoziție
   const { 
     loading: statsLoading, 
     error: statsError, 
@@ -310,7 +301,6 @@ const MoodHistory = () => {
     fetchPolicy: 'network-only'
   });
 
-  // Reîncarcă datele când se schimbă intervalul de date
   useEffect(() => {
     if (dateRange.startDate && dateRange.endDate) {
       refetchStats({
@@ -318,12 +308,10 @@ const MoodHistory = () => {
         endDate: dateRange.endDate
       });
       
-      // Refetch entries with same date range
       refetchEntries();
     }
   }, [dateRange.startDate, dateRange.endDate, refetchStats, refetchEntries]);
   
-  // Obține eticheta factorului
   const getFactorLabel = (factor) => {
     const factors = {
       'sleep': 'Somn',
@@ -335,7 +323,6 @@ const MoodHistory = () => {
     return factors[factor] || factor;
   };
   
-  // Obține emoji pentru nivelul de dispoziție
   const getMoodEmoji = (mood) => {
     const moodValue = Number(mood);
     if (isNaN(moodValue)) return '😐';
@@ -345,17 +332,14 @@ const MoodHistory = () => {
     return '😄';
   };
   
-  // Handler pentru schimbarea datei de start
   const handleStartDateChange = (e) => {
     setDateRange({ ...dateRange, startDate: e.target.value });
   };
   
-  // Handler pentru schimbarea datei de sfârșit
   const handleEndDateChange = (e) => {
     setDateRange({ ...dateRange, endDate: e.target.value });
   };
 
-  // Filtreză înregistrările în funcție de intervalul de date selectat
   const filteredEntries = React.useMemo(() => {
     if (!entriesData || !entriesData.getMoodEntries) return [];
 
@@ -363,21 +347,17 @@ const MoodHistory = () => {
       .filter(entry => {
         if (!entry || !entry.date) return false;
         
-        // Convertește data înregistrării la un obiect Date
         const entryDate = new Date(entry.date);
         if (!isValid(entryDate)) return false;
         
-        // Convertește limitele intervalului la obiecte Date
         const startDateObj = new Date(dateRange.startDate);
         const endDateObj = new Date(dateRange.endDate);
         
-        // Ajustează data de sfârșit pentru a include întreaga zi
         endDateObj.setHours(23, 59, 59, 999);
         
-        // Verifică dacă data înregistrării este în interval
         return entryDate >= startDateObj && entryDate <= endDateObj;
       })
-      .map(entry => stripTypenameFields(entry)); // Eliminăm toate câmpurile __typename
+      .map(entry => stripTypenameFields(entry));
   }, [entriesData, dateRange.startDate, dateRange.endDate]);
 
   return (

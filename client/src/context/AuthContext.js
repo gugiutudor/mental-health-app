@@ -10,7 +10,6 @@ export const AuthProvider = ({ children }) => {
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    // Verifică dacă există un token salvat
     const token = localStorage.getItem('token');
     const userData = localStorage.getItem('user');
     
@@ -18,8 +17,6 @@ export const AuthProvider = ({ children }) => {
       try {
         const parsedUser = JSON.parse(userData);
         
-        // Asigurăm compatibilitatea cu versiunile anterioare
-        // Dacă userul are doar câmpul 'name' și nu are firstName/lastName
         if (parsedUser.name && (!parsedUser.firstName || !parsedUser.lastName)) {
           const nameParts = parsedUser.name.split(' ');
           if (nameParts.length > 1) {
@@ -32,8 +29,7 @@ export const AuthProvider = ({ children }) => {
         }
         
         setCurrentUser(parsedUser);
-        
-        // Aplică tema salvată
+
         if (parsedUser.preferences && parsedUser.preferences.theme) {
           applyTheme(parsedUser.preferences.theme);
         }
@@ -48,8 +44,7 @@ export const AuthProvider = ({ children }) => {
 
   const login = (userData, token) => {
     localStorage.setItem('token', token);
-    
-    // Asigurăm-ne că avem firstName și lastName în userData
+
     const userToStore = { ...userData };
     if (userData.name && (!userData.firstName || !userData.lastName)) {
       const nameParts = userData.name.split(' ');
@@ -63,8 +58,7 @@ export const AuthProvider = ({ children }) => {
     }
     
     localStorage.setItem('user', JSON.stringify(userToStore));
-    
-    // Aplicăm tema selectată dacă există în preferințe
+
     if (userToStore.preferences && userToStore.preferences.theme) {
       applyTheme(userToStore.preferences.theme);
     }
@@ -77,21 +71,17 @@ export const AuthProvider = ({ children }) => {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
     setCurrentUser(null);
-    
-    // Resetăm tema la cea implicită
+
     applyTheme('light');
   };
 
   const updateUser = (userData) => {
-    // Asigurăm-ne că păstrăm toate datele utilizatorului
     const updatedUser = { ...currentUser, ...userData };
-    
-    // Aplicăm tema selectată dacă există în preferințe
+
     if (updatedUser.preferences && updatedUser.preferences.theme) {
       applyTheme(updatedUser.preferences.theme);
     }
-    
-    // Vom adăuga și câmpul name pentru compatibilitate
+
     if (updatedUser.firstName && updatedUser.lastName) {
       updatedUser.name = `${updatedUser.firstName} ${updatedUser.lastName}`;
     }
@@ -99,8 +89,7 @@ export const AuthProvider = ({ children }) => {
     localStorage.setItem('user', JSON.stringify(updatedUser));
     setCurrentUser(updatedUser);
   };
-  
-  // Funcție pentru aplicarea temei
+
   const applyTheme = (theme) => {
     const root = document.documentElement;
     
@@ -117,7 +106,6 @@ export const AuthProvider = ({ children }) => {
       root.style.setProperty('--border-color', '#e2e8f0');
       document.body.className = 'theme-light';
     } else if (theme === 'auto') {
-      // Verifică preferința de sistem
       document.body.className = 'theme-auto';
       const prefersDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches;
       

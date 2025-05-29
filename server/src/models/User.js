@@ -1,5 +1,3 @@
-// În fișierul server/src/models/User.js
-
 const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
 
@@ -56,12 +54,10 @@ const UserSchema = new mongoose.Schema({
   timestamps: true
 });
 
-// Adăugăm un câmp virtual pentru a menține compatibilitatea cu codul vechi
 UserSchema.virtual('name').get(function() {
   return `${this.firstName} ${this.lastName}`;
 });
 
-// Asigurăm că virtualele sunt incluse în răspunsul JSON
 UserSchema.set('toJSON', {
   virtuals: true,
   transform: function(doc, ret) {
@@ -70,7 +66,6 @@ UserSchema.set('toJSON', {
   }
 });
 
-// Metodă pentru hash-uirea parolei înainte de salvare
 UserSchema.pre('save', async function(next) {
   if (!this.isModified('password')) return next();
   
@@ -83,7 +78,6 @@ UserSchema.pre('save', async function(next) {
   }
 });
 
-// Metodă pentru verificarea parolei
 UserSchema.methods.comparePassword = async function(candidatePassword) {
   return bcrypt.compare(candidatePassword, this.password);
 };

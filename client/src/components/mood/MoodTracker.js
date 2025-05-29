@@ -519,17 +519,14 @@ const MoodTracker = () => {
         resetForm();
         setTagInput('');
         
-        // Ascunde mesajul de succes după 4 secunde
         setTimeout(() => {
           setSuccess(false);
         }, 4000);
       } catch (error) {
-        // Eroarea este gestionată în onError de la mutation
       }
     }
   });
 
-  // Adaugă un tag nou
   const handleAddTag = () => {
     if (tagInput.trim() && !formik.values.tags.includes(tagInput.trim())) {
       formik.setFieldValue('tags', [...formik.values.tags, tagInput.trim()]);
@@ -537,7 +534,6 @@ const MoodTracker = () => {
     }
   };
 
-  // Șterge un tag
   const handleRemoveTag = (tagToRemove) => {
     formik.setFieldValue(
       'tags',
@@ -545,7 +541,6 @@ const MoodTracker = () => {
     );
   };
 
-  // Handler pentru apăsarea tastei Enter în câmpul de tag
   const handleTagInputKeyPress = (e) => {
     if (e.key === 'Enter') {
       e.preventDefault();
@@ -553,7 +548,6 @@ const MoodTracker = () => {
     }
   };
 
-  // Funcție pentru a afișa emoji-ul potrivit pentru nivelul de dispoziție
   const getMoodEmoji = (mood) => {
     const moodValue = Number(mood);
     if (moodValue <= 2) return '😣';

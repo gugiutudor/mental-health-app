@@ -2,7 +2,6 @@ import React, { useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
 
-// Importă paginile - păstrăm numele fișierului Dashboard
 import Dashboard from './pages/Dashboard';
 import Login from './pages/Login';
 import Register from './pages/Register';
@@ -12,11 +11,9 @@ import Exercise from './pages/Exercise';
 import Resources from './pages/Resources';
 import NotFound from './pages/NotFound';
 
-// Importă componentele de layout
 import Header from './components/layout/Header';
 import Footer from './components/layout/Footer';
 
-// Componenta pentru protejarea rutelor
 const PrivateRoute = ({ children }) => {
   const { currentUser, loading } = useAuth();
   
@@ -31,7 +28,6 @@ const PrivateRoute = ({ children }) => {
   return children;
 };
 
-// Componenta pentru a inițializa tema
 const ThemeInitializer = ({ children }) => {
   const { currentUser, applyTheme } = useAuth();
   
@@ -40,11 +36,9 @@ const ThemeInitializer = ({ children }) => {
       const theme = currentUser.preferences.theme || 'light';
       applyTheme(theme);
     } else {
-      // Temă implicită dacă utilizatorul nu are preferințe
       applyTheme('light');
     }
-    
-    // Ascultă pentru schimbări în preferințele de temă ale sistemului
+
     const darkModeMediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
     
     const handleSystemThemeChange = (event) => {

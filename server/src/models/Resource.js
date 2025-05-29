@@ -44,16 +44,15 @@ const ResourceSchema = new mongoose.Schema({
   }
 }, {
   timestamps: true,
-  // Configurare pentru transformarea automată
+
   toJSON: {
     virtuals: true,
     transform: function(doc, ret) {
-      // Adaugă un câmp 'id' care este o versiune string a _id-ului MongoDB
+
       ret.id = ret._id.toString();
       delete ret._id;
       delete ret.__v;
 
-      // Asigură formatul corect pentru date
       if (ret.createdAt) {
         ret.createdAt = new Date(ret.createdAt).toISOString();
       }
@@ -61,12 +60,10 @@ const ResourceSchema = new mongoose.Schema({
         ret.updatedAt = new Date(ret.updatedAt).toISOString();
       }
       
-      // Asigură că tags este un array
       if (!ret.tags) {
         ret.tags = [];
       }
       
-      // Asigură că recommendedFor este un array
       if (!ret.recommendedFor) {
         ret.recommendedFor = [];
       }
@@ -77,10 +74,9 @@ const ResourceSchema = new mongoose.Schema({
   toObject: {
     virtuals: true,
     transform: function(doc, ret) {
-      // Adaugă un câmp 'id' care este o versiune string a _id-ului MongoDB
+
       ret.id = ret._id.toString();
-      
-      // Asigură formatul corect pentru date
+
       if (ret.createdAt) {
         try {
           ret.createdAt = new Date(ret.createdAt).toISOString();
@@ -106,19 +102,16 @@ const ResourceSchema = new mongoose.Schema({
   }
 });
 
-// Adaugă un virtual pentru id care returnează _id ca string
 ResourceSchema.virtual('id').get(function() {
   return this._id.toString();
 });
 
-// Hook pre-save pentru validare
 ResourceSchema.pre('save', function(next) {
-  // Validează URL-ul
+
   if (this.url && !this.url.startsWith('http')) {
     this.url = 'https://' + this.url;
   }
 
-  // Curăță tag-urile
   if (this.tags && Array.isArray(this.tags)) {
     this.tags = this.tags.filter(tag => tag && tag.trim().length > 0);
   }
