@@ -190,18 +190,18 @@ const Dashboard = () => {
         
         <RightColumn>
           <Card>
+            <SectionHeading>Sfatul zilei</SectionHeading>
+            <DailyTip>
+              {randomTip}
+            </DailyTip>
+          </Card>
+          
+          <Card>
             <RecommendedExercises limit={3} />
           </Card>
           
           <Card>
             <RecommendedResources limit={3} />
-          </Card>
-          
-          <Card>
-            <SectionHeading>Sfatul zilei</SectionHeading>
-            <DailyTip>
-              {randomTip}
-            </DailyTip>
           </Card>
         </RightColumn>
       </DashboardGrid>

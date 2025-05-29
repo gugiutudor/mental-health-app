@@ -5,14 +5,7 @@
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
-    "eject": "react-scripts eject",
-    "test": "jest",
-    "test:watch": "jest --watch",
-    "test:coverage": "jest --coverage",
-    "test:components": "jest --testPathPattern='/__tests__/components/.*\\.test\\.js'",
-    "test:pages": "jest --testPathPattern='/__tests__/pages/.*\\.test\\.js'",
-    "test:context": "jest --testPathPattern='/__tests__/context/.*\\.test\\.js'",
-    "test:utils": "jest --testPathPattern='/__tests__/utils/.*\\.test\\.js'"
+    "eject": "react-scripts eject"
   },
   "keywords": [],
   "author": "",
@@ -43,19 +36,5 @@
     "react-scripts": "^5.0.1",
     "styled-components": "^6.1.17",
     "yup": "^1.6.1"
-  },
-  "devDependencies": {
-    "@babel/core": "^7.27.1",
-    "@babel/plugin-transform-runtime": "^7.27.1",
-    "@babel/preset-env": "^7.27.2",
-    "@babel/preset-react": "^7.27.1",
-    "@testing-library/jest-dom": "^6.1.5",
-    "@testing-library/react": "^14.1.2",
-    "@testing-library/user-event": "^14.5.1",
-    "babel-jest": "^29.7.0",
-    "identity-obj-proxy": "^3.0.0",
-    "jest": "^29.7.0",
-    "jest-environment-jsdom": "^29.7.0",
-    "msw": "^2.0.11"
   }
 }
