@@ -1,4 +1,4 @@
-// Cypress test pentru dashboard și funcționalități de bază - actualizat pentru firstName/lastName
+// Cypress test pentru dashboard și funcționalități de bază - CORECTAT
 describe('Dashboard și funcționalități principale', () => {
   beforeEach(() => {
     // Autentificare înainte de fiecare test
@@ -89,10 +89,9 @@ describe('Dashboard și funcționalități principale', () => {
   });
 
   it('afișează componentele principale ale dashboard-ului', () => {
-    // Verifică existența secțiunilor principale
+    // Verifică existența secțiunilor principale - TEXTELE CORECTE
     cy.get('h1').should('contain', 'Bun venit la aplicația de sănătate mentală');
-    cy.contains('Dispoziția ta').should('be.visible');
-    cy.contains('Adaugă dispoziția curentă').should('be.visible');
+    cy.contains('Adaugă dispoziția curentă').should('be.visible'); // Nu "Dispoziția ta"
     cy.contains('Istoricul dispoziției').should('be.visible');
     cy.contains('Exerciții recomandate').should('be.visible');
     cy.contains('Sfatul zilei').should('be.visible');

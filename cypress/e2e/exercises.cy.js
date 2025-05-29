@@ -1,5 +1,4 @@
-
-// Cypress test pentru fluxul de exerciții - corectat
+// Cypress test pentru fluxul de exerciții - FIX FINAL
 describe('Fluxul de exerciții', () => {
   beforeEach(() => {
     // Autentificare înainte de fiecare test
@@ -14,7 +13,8 @@ describe('Fluxul de exerciții', () => {
               token: 'fake-token',
               user: {
                 id: '1',
-                name: 'Test User',
+                firstName: 'Test',
+                lastName: 'User',
                 email: 'test@example.com',
                 dateJoined: new Date().toISOString(),
                 preferences: {
@@ -85,8 +85,7 @@ describe('Fluxul de exerciții', () => {
     cy.contains('Meditație ghidată').should('be.visible');
     cy.contains('Respirație 4-7-8').should('be.visible');
     
-    // Testează filtrarea - CORECTAT: se înlocuiește așteptarea care eșua
-    // În loc să așteptăm un request specific, mocuim răspunsul direct
+    // Testează filtrarea
     cy.intercept('POST', '/graphql', (req) => {
       if (req.body.operationName === 'GetExercises' && 
           req.body.variables && 
@@ -111,9 +110,8 @@ describe('Fluxul de exerciții', () => {
     // Apasă pe filtrul de respirație
     cy.contains('Respirație').click();
     
-    // Verifică afișarea corectă după filtrare (verificăm rezultatele, nu requestul)
+    // Verifică afișarea corectă după filtrare
     cy.contains('Respirație 4-7-8').should('be.visible');
-    // Verificăm că celălalt exercițiu nu mai este vizibil
     cy.contains('Meditație ghidată').should('not.exist');
   });
 
@@ -158,7 +156,7 @@ describe('Fluxul de exerciții', () => {
     }).as('getUserProgress');
     
     // Apasă butonul pentru a vedea exercițiul
-    cy.contains('Meditație ghidată').parent().contains('Vezi exercițiul').click();
+    cy.contains('Meditație ghidată').parent().contains('Începe exercițiul').click();
     
     // Verifică încărcarea detaliilor exercițiului
     cy.url().should('include', '/exercises/1');
@@ -171,9 +169,10 @@ describe('Fluxul de exerciții', () => {
     cy.contains('10 minute').should('be.visible');
     cy.contains('Începe exercițiul').should('be.visible');
     
-    // Verifică secțiunea "Înainte de a începe"
-    cy.contains('Înainte de a începe:').should('be.visible');
-    cy.contains('Cum te simți acum? (1-10)').should('be.visible');
+    // FIX: Verifică secțiunea "Înainte de a începe" cu textul corect din Exercise.js
+    cy.contains('Înainte de a începe, cum te simți').should('be.visible');
+    // Sau verifică doar partea din text
+    cy.contains('cum te simți').should('be.visible');
   });
 
   it('permite completarea unui exercițiu și salvarea feedback-ului', () => {
@@ -217,7 +216,7 @@ describe('Fluxul de exerciții', () => {
     }).as('getUserProgress');
     
     // Navighează la pagina de detalii a exercițiului
-    cy.contains('Meditație ghidată').parent().contains('Vezi exercițiul').click();
+    cy.contains('Meditație ghidată').parent().contains('Începe exercițiul').click();
     cy.url().should('include', '/exercises/1');
     cy.wait('@getExerciseDetails');
     cy.wait('@getUserProgress');
@@ -230,7 +229,7 @@ describe('Fluxul de exerciții', () => {
     
     // Verifică dacă exercițiul a început
     cy.contains('00:00').should('be.visible');
-    cy.contains('Pași:').should('be.visible');
+    cy.contains('Pași').should('be.visible');
     
     // Așteaptă câteva secunde pentru a simula trecerea timpului
     cy.wait(2000);
