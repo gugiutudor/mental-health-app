@@ -95,7 +95,7 @@ async function startApolloServer() {
   const PORT = process.env.PORT || 4000;
 
   // Pornire server
-  app.listen(PORT, () => {
+  app.listen(PORT, '0.0.0.0', () => {
     console.log(`Server pornit la http://localhost:${PORT}`);
     console.log(`GraphQL disponibil la http://localhost:${PORT}${server.graphqlPath}`);
   });

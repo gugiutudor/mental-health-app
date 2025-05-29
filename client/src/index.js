@@ -8,7 +8,7 @@ import './index.css';
 
 // Creează link-ul HTTP pentru Apollo Client
 const httpLink = createHttpLink({
-  uri: 'http://localhost:4000/graphql',
+  uri: 'http://192.168.1.228:4000/graphql',
 });
 
 // Adaugă token-ul de autentificare la fiecare request
